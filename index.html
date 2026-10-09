@@ -1,0 +1,2021 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cistude - Jeu de Laurent JOURNAUX</title>
+    <style>
+        :root {
+            --color-blue: #227394;
+            --color-beige: #d4b283;
+            --color-bg: #e8f5e9;
+            --color-card: #ffffff;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--color-bg);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 { color: #2c3e50; margin: 0 0 2px 0; font-size: 1.8em; text-transform: uppercase; letter-spacing: 0.5px; }
+        .subtitle { font-size: 0.8em; color: #7f8c8d; margin-bottom: 6px; }
+
+        .app-layout {
+            display: flex;
+            gap: 12px;
+            width: 98vw;
+            height: 96vh;
+            max-width: none;
+            margin: auto;
+            align-items: stretch;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .sidebar-left {
+            width: 330px;
+            flex-shrink: 0;
+            background: var(--color-card);
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .main-right {
+            flex: 1;
+            background: var(--color-card);
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+
+        .hidden { display: none !important; }
+
+        .btn {
+            background-color: #227394;
+            color: white;
+            border: none;
+            padding: 8px 10px;
+            font-size: 0.8em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            text-decoration: none;
+            display: inline-block;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .btn:hover { background-color: #195670; }
+        .btn-secondary { background-color: #7f8c8d; }
+        .btn-secondary:hover { background-color: #626567; }
+        .btn-zoom { background-color: #38bdf8; color: #0f172a; font-weight: bold; width: auto; padding: 4px 10px; }
+        .btn-zoom:hover { background-color: #0ea5e9; }
+        .btn-action { background-color: #0f766e; font-weight: bold; }
+        .btn-action:hover { background-color: #115e59; }
+        .btn-warning { background-color: #c2410c; font-weight: bold; color: white; }
+        .btn-warning:hover { background-color: #9a3412; }
+        .btn-blog { background-color: #475569; font-weight: bold; }
+        .btn-blog:hover { background-color: #334155; }
+        .btn-save { background-color: #10b981; font-weight: bold; }
+        .btn-save:hover { background-color: #059669; }
+        .btn-competition { background-color: #9333ea; font-weight: bold; }
+        .btn-competition:hover { background-color: #7e22ce; }
+        .btn-freemove { background-color: #7c3aed; color: white; font-weight: bold; }
+        .btn-freemove:hover { background-color: #6d28d9; }
+        .btn-help { background-color: #0284c7; font-weight: bold; }
+        .btn-help:hover { background-color: #0369a1; }
+        .btn-export { background-color: #d97706; font-weight: bold; }
+        .btn-export:hover { background-color: #b45309; }
+
+        select, input[type="number"] {
+            padding: 5px;
+            font-size: 0.85em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 100%;
+            margin-top: 2px;
+            box-sizing: border-box;
+        }
+
+        #status {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--color-blue);
+            padding: 6px;
+            background: #f1f8e9;
+            border-radius: 5px;
+            border-left: 4px solid var(--color-blue);
+            text-align: center;
+        }
+
+        .scores-panel {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        #board-container {
+            position: relative;
+            width: 100%;
+            flex: 1;
+            background: #f1f8e9;
+            border: 2px solid #c8e6c9;
+            border-radius: 6px;
+            overflow: auto;
+            cursor: grab;
+            box-sizing: border-box;
+        }
+        #board-container:active {
+            cursor: grabbing;
+        }
+
+        #board-inner {
+            position: relative;
+            width: 3000px;
+            height: 3000px;
+            transform-origin: 1500px 1500px;
+        }
+
+        .hex-wrapper {
+            position: absolute;
+            width: 100px;
+            height: 86.6025px;
+            pointer-events: none;
+            transition: transform 0.1s;
+        }
+        .hex-wrapper:hover { transform: scale(1.04); z-index: 10; }
+
+        .hex-svg {
+            width: 100px;
+            height: 86.6025px;
+            filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.15));
+            pointer-events: none;
+        }
+
+        .click-area {
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        .coord-label {
+            position: absolute;
+            top: 32px;
+            left: 0;
+            width: 100px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: #1e293b;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.9);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .detected-turtle {
+            animation: pulse-turtle-frame 1.8s infinite alternate;
+        }
+
+        @keyframes pulse-turtle-frame {
+            0% { transform: scale(1); filter: brightness(1); }
+            100% { transform: scale(1.02); filter: brightness(1.15); }
+        }
+
+        #tile-builder {
+            background: #f9fbe7;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #dcedc8;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .tile-control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 6px;
+        }
+
+        /* Boutons fléchés de rotation agrandis */
+        .btn-arrow {
+            background-color: #64748b;
+            color: white;
+            border: none;
+            width: 75px;
+            height: 90px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85em;
+            font-weight: bold;
+            transition: background 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-arrow:hover { background-color: #475569; }
+        .arrow-icon {
+            font-size: 2.3em;
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+
+        .preview-box {
+            width: 90px;
+            height: 90px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            background: #fff;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .preview-box .hex-svg {
+            width: 85px;
+            height: 73.6px;
+        }
+
+        .zoom-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            background: #f8fafc;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85em;
+        }
+
+        .history-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        #log-box {
+            text-align: left;
+            background: #1e293b;
+            color: #38bdf8;
+            padding: 6px;
+            border-radius: 5px;
+            height: 70px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.7em;
+        }
+
+        /* Fenêtre modale d'aide */
+        #help-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 550px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            text-align: left;
+        }
+        .modal-content h2 { margin-top: 0; color: #2c3e50; font-size: 1.2em; }
+        .modal-content ul { padding-left: 20px; font-size: 0.9em; line-height: 1.5; color: #334155; }
+        .modal-content li { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="container" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 0;">
+
+    <!-- Écran d'accueil / configuration compact en colonnes sans image -->
+    <div id="setup-screen" style="max-width: 780px; width: 90%; background: var(--color-card); padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <div style="margin-bottom: 12px;">
+            <h1>Cistude</h1>
+            <div class="subtitle" style="font-size: 0.9em; font-weight: bold; color: #475569;">Un jeu de Laurent JOURNAUX</div>
+            <div style="font-size: 0.85em; color: #334155; margin-top: 4px;">Jeu de stratégie abstrait à base de pavage hexagonal et de reconnaissance de motifs de tortues.</div>
+        </div>
+        <hr style="border:0; border-top:1px solid #eee; margin: 12px 0;">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: start;">
+            <!-- Colonne de gauche : Paramètres -->
+            <div style="display: flex; flex-direction: column; gap: 10px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <div>
+                    <label for="game-mode" style="font-size: 0.85em;"><strong>Mode adversaires :</strong></label>
+                    <select id="game-mode">
+                        <option value="H_H">Humain (Bleu) vs Humain (Beige)</option>
+                        <option value="H_AI">Humain vs IA (Stratège Expert)</option>
+                        <option value="AI_AI">AI vs AI</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="total-hex-count" style="font-size: 0.85em;"><strong>Nombre total d'hexagones (pair) :</strong></label>
+                    <input type="number" id="total-hex-count" value="32" step="2" min="4" max="100">
+                    <div style="font-size: 0.7em; color: #64748b; margin-top: 2px;">Chaque joueur recevra la moitié.</div>
+                </div>
+            </div>
+
+            <!-- Colonne de droite : Boutons de lancement et utilitaires -->
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <button class="btn" style="background-color: #2563eb;" onclick="startGame('base')">Mode de Base</button>
+                <button class="btn" style="background-color: #0f766e;" onclick="startGame('standard')">Mode Standard</button>
+                <button class="btn btn-competition" onclick="startGame('competition')">🏆 Mode Compétition</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <button class="btn btn-help" onclick="openHelpModal()">💡 Aide</button>
+                    <button class="btn btn-export" onclick="exportGameFile()">📥 Exporter</button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <button class="btn btn-secondary" onclick="document.getElementById('import-file-input').click()">📂 Importer</button>
+                    <button class="btn btn-save" onclick="loadGameFromStorage()">📂 Reprendre</button>
+                </div>
+                <input type="file" id="import-file-input" accept=".txt,.json,.csv" class="hidden" onchange="importGameFromFile(event)">
+                <a href="https://pionsphotonsgluons.blogspot.com/2025/12/cistude-jeu-abstrait-pour-2-joueurs.html" target="_blank" class="btn btn-blog" style="margin-top: 2px;">📖 Présentation du jeu</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale d'aide / mode d'emploi de l'interface -->
+    <div id="help-modal" class="hidden">
+        <div class="modal-content">
+            <h2>💡 Mode d'emploi de l'interface Cistude</h2>
+            <ul>
+                <li><strong>Hexagone en main (Panneau de gauche) :</strong> Visualise la tuile courante que vous allez jouer. Utilisez le bouton <em>Face</em> pour basculer entre Recto (Bleu) et Verso (Beige), et les boutons fléchés <em>Gauche ↺</em> / <em>Droite ↻</em> pour la pivoter.</li>
+                <li><strong>Pose des tuiles :</strong> Cliquez sur l'une des cases vides du plateau où est projetée, en grisé, la forme de l'hexagone en main pour le poser.</li>
+                <li><strong>Phase de Repositionnement :</strong> Sélectionnez une de vos tuiles déjà posées sur le plateau (entourée en jaune), puis cliquez sur une case vide pour la déplacer, ou recliquez dessus pour la modifier directement sur place. La forme posée sera celle de votre Hexagone en main.</li>
+                <li><strong>Navigation sur le plateau :</strong> Cliquez et glissez (maintenez le clic) sur le fond du plateau pour vous déplacer facilement. Utilisez les boutons <strong>+</strong> et <strong>-</strong> en bas à droite pour zoomer/dézoomer.</li>
+                <li><strong>Historique, Export et Rechargement :</strong> Utilisez les boutons <em>Précédent ◄</em> et <em>Suivant ►</em> pour naviguer dans l'historique des coups. Exportez vos parties au format texte pour constituer une banque de données ou les réimporter ultérieurement.</li>
+            </ul>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn" style="width: auto; padding: 8px 20px;" onclick="closeHelpModal()">Compris !</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Écran de jeu principal -->
+    <div id="game-screen" class="app-layout hidden">
+        
+        <!-- COLONNE DE GAUCHE -->
+        <div class="sidebar-left">
+            <div>
+                <h1>Cistude</h1>
+                <div class="subtitle" id="rule-subtitle">Mode standard</div>
+            </div>
+
+            <div class="scores-panel">
+                <span style="color: var(--color-blue); font-weight: bold;">Bleu: <span id="stock-p1">16</span> Hex (Pts: <span id="pts-p1">0</span>)</span>
+                <span style="color: #b08d4b; font-weight: bold;">Beige: <span id="stock-p2">16</span> Hex (Pts: <span id="pts-p2">0</span>)</span>
+            </div>
+
+            <div id="free-moves-panel" style="font-size: 0.75em; background: #faf5ff; border: 1px solid #d8b4fe; padding: 4px 8px; border-radius: 4px; text-align: center; color: #7e22ce; font-weight: bold;" class="hidden">
+                Coups gratuits en réserve -> Bleu : <span id="free-moves-1">0</span> | Beige : <span id="free-moves-2">0</span>
+            </div>
+
+            <div id="phase-indicator" style="font-size: 0.8em; font-weight: bold; color: #0f766e; text-align: center;">Phase : Pose</div>
+            <div id="status">Tour du Joueur Bleu</div>
+
+            <!-- Hexagone en main avec grandes flèches ergonomiques -->
+            <div id="tile-builder">
+                <div style="font-size: 1.05em; font-weight: bold; color: #2c3e50;">Hexagone en main</div>
+                <button class="btn btn-action" onclick="toggleSide()" id="btn-face-label">Face : Recto (Bleu)</button>
+                
+                <div class="tile-control-row">
+                    <button class="btn-arrow" onclick="rotateTile(-1)">
+                        <span class="arrow-icon">↺</span>
+                        <span>Gauche</span>
+                    </button>
+                    <div id="preview-container" class="preview-box"></div>
+                    <button class="btn-arrow" onclick="rotateTile(1)">
+                        <span class="arrow-icon">↻</span>
+                        <span>Droite</span>
+                    </button>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <button id="btn-end-pose" class="btn btn-warning hidden" onclick="triggerRepositionPhase()">Déclencher Repositionnement</button>
+                <button id="btn-use-freemove" class="btn btn-freemove hidden" onclick="useFreeMoveAction()">⚡ Utiliser un coup gratuit</button>
+                <button id="btn-pass" class="btn btn-secondary hidden" onclick="passRepositionTurn()">Passer mon tour / Valider les coups</button>
+            </div>
+
+            <!-- Contrôles Sauvegarde & Historique -->
+            <div style="display: flex; gap: 4px;">
+                <button class="btn btn-save" style="font-size: 0.75em; padding: 5px;" onclick="saveGameToStorage()">💾 Sauvegarder</button>
+                <button class="btn btn-export" style="font-size: 0.75em; padding: 5px;" onclick="exportGameFile()">📥 Exporter</button>
+            </div>
+            <div class="history-controls">
+                <button class="btn btn-secondary" style="font-size: 0.75em; padding: 5px;" onclick="historyBack()">◄ Précédent</button>
+                <button class="btn btn-secondary" style="font-size: 0.75em; padding: 5px;" onclick="historyForward()">Suivant ►</button>
+            </div>
+
+            <button class="btn btn-secondary" style="margin-top: auto; padding: 5px;" onclick="resetGame()">Menu Principal</button>
+
+            <!-- Journal des actions -->
+            <div>
+                <div style="font-size: 0.75em; font-weight: bold; margin-bottom: 2px; color: #475569;">Journal :</div>
+                <div id="log-box"></div>
+            </div>
+            
+        </div>
+
+        <!-- COLONNE DE DROITE : Plateau de jeu + Zoom en bas -->
+        <div class="main-right">
+            <div id="board-container">
+                <div id="board-inner"></div>
+            </div>
+
+            <div class="zoom-controls">
+                <span><strong>Zoom :</strong></span>
+                <div style="display: flex; gap: 4px; align-items: center;">
+                    <button class="btn btn-zoom" onclick="zoomIn()">+</button>
+                    <button class="btn btn-zoom" onclick="zoomOut()">-</button>
+                    <button class="btn btn-secondary" style="width: auto; padding: 4px 8px; margin: 0;" onclick="resetZoom()">Réinitialiser</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let boardState = {}; 
+    let currentPlayer = 1;
+    let stock = { 1: 16, 2: 16 };
+    let points = { 1: 0, 2: 0 };
+    let extraHexPoints = { 1: 0, 2: 0 };
+    let freeMoves = { 1: 0, 2: 0 };
+    let maxTurtlesScoredTier = { 1: false, 2: false }; 
+    let gamePhase = 'pose'; 
+    let gameMode = 'H_H';
+    let currentRuleMode = 'standard'; 
+    let gameActive = true;
+    let aiInterval = null;
+    let currentZoom = 1.0;
+
+    let currentSide = 'recto'; 
+    let currentRot = 0;        
+
+    let isDragging = false;
+    let startX, startY;
+    let detectedTurtlesCache = [];
+    let allValidConfigurations = [];
+    let frozenTiles = new Set(); 
+    let scoredTurtlesPoints = {}; 
+    
+    let repositionInitialBoard = null;
+    let repositionMovesCount = 0;
+    let freeMovesUsedThisTurn = 0;
+    let usingFreeMove = false;
+    let selectedTileForMove = null;
+    let consecutivePasses = 0;
+
+    let gameHistory = [];
+    let historyIndex = -1;
+
+    function openHelpModal() {
+        document.getElementById('help-modal').classList.remove('hidden');
+    }
+
+    function closeHelpModal() {
+        document.getElementById('help-modal').classList.add('hidden');
+    }
+
+    function exportGameFile() {
+        const saved = localStorage.getItem('cistude_saved_game');
+        if (!saved) {
+            alert("Aucune partie en mémoire/sauvegardée à exporter. Veuillez lancer ou sauvegarder une partie d'abord.");
+            return;
+        }
+        const blob = new Blob([saved], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cistude_partie_${new Date().toISOString().slice(0,10)}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function importGameFromFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const content = e.target.result;
+                const data = JSON.parse(content);
+                if (!data.boardState || !data.gameHistory) {
+                    throw new Error("Format invalide");
+                }
+                localStorage.setItem('cistude_saved_game', content);
+                loadGameFromStorage();
+            } catch(err) {
+                alert("Erreur : Le fichier sélectionné n'est pas un fichier de partie Cistude valide.");
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function getPlayerColorName(p) {
+        return p === 1 ? "Joueur 1 (Bleu)" : "Joueur 2 (Beige)";
+    }
+
+    function pushHistory() {
+        const stateSnapshot = {
+            boardState: JSON.parse(JSON.stringify(boardState)),
+            currentPlayer: currentPlayer,
+            stock: JSON.parse(JSON.stringify(stock)),
+            points: JSON.parse(JSON.stringify(points)),
+            extraHexPoints: JSON.parse(JSON.stringify(extraHexPoints)),
+            freeMoves: JSON.parse(JSON.stringify(freeMoves)),
+            maxTurtlesScoredTier: JSON.parse(JSON.stringify(maxTurtlesScoredTier)),
+            gamePhase: gamePhase,
+            frozenTiles: Array.from(frozenTiles),
+            scoredTurtlesPoints: JSON.parse(JSON.stringify(scoredTurtlesPoints)),
+            repositionMovesCount: repositionMovesCount,
+            freeMovesUsedThisTurn: freeMovesUsedThisTurn,
+            usingFreeMove: usingFreeMove,
+            repositionInitialBoard: repositionInitialBoard ? JSON.parse(JSON.stringify(repositionInitialBoard)) : null
+        };
+        if (historyIndex < gameHistory.length - 1) {
+            gameHistory = gameHistory.slice(0, historyIndex + 1);
+        }
+        gameHistory.push(stateSnapshot);
+        historyIndex = gameHistory.length - 1;
+    }
+
+    function historyBack() {
+        if (historyIndex > 0) {
+            historyIndex--;
+            restoreHistoryState(gameHistory[historyIndex]);
+            logMessage("Retour en arrière dans l'historique.");
+        } else {
+            logMessage("Début de l'historique atteint.");
+        }
+    }
+
+    function historyForward() {
+        if (historyIndex < gameHistory.length - 1) {
+            historyIndex++;
+            restoreHistoryState(gameHistory[historyIndex]);
+            logMessage("Avancée dans l'historique.");
+        } else {
+            logMessage("Dernier état de l'historique atteint.");
+        }
+    }
+
+    function restoreHistoryState(snapshot) {
+        boardState = JSON.parse(JSON.stringify(snapshot.boardState));
+        currentPlayer = snapshot.currentPlayer;
+        stock = JSON.parse(JSON.stringify(snapshot.stock));
+        points = JSON.parse(JSON.stringify(snapshot.points));
+        extraHexPoints = JSON.parse(JSON.stringify(snapshot.extraHexPoints));
+        freeMoves = JSON.parse(JSON.stringify(snapshot.freeMoves || {1:0, 2:0}));
+        maxTurtlesScoredTier = JSON.parse(JSON.stringify(snapshot.maxTurtlesScoredTier || {1:false, 2:false}));
+        gamePhase = snapshot.gamePhase;
+        frozenTiles = new Set(snapshot.frozenTiles);
+        scoredTurtlesPoints = JSON.parse(JSON.stringify(snapshot.scoredTurtlesPoints || {}));
+        repositionMovesCount = snapshot.repositionMovesCount;
+        freeMovesUsedThisTurn = snapshot.freeMovesUsedThisTurn || 0;
+        usingFreeMove = snapshot.usingFreeMove || false;
+        repositionInitialBoard = snapshot.repositionInitialBoard ? JSON.parse(JSON.stringify(snapshot.repositionInitialBoard)) : null;
+        selectedTileForMove = null;
+        updateFreeMoveButtonVisibility();
+        detectedTurtlesCache = computeValidTurtles(boardState);
+        renderBoard();
+        updateStatus();
+    }
+
+    function saveGameToStorage() {
+        const saveData = {
+            boardState, currentPlayer, stock, points, extraHexPoints, freeMoves, maxTurtlesScoredTier, gamePhase,
+            frozenTiles: Array.from(frozenTiles), scoredTurtlesPoints, currentRuleMode, gameMode, gameHistory, historyIndex,
+            repositionMovesCount, freeMovesUsedThisTurn, usingFreeMove, repositionInitialBoard
+        };
+        localStorage.setItem('cistude_saved_game', JSON.stringify(saveData));
+        logMessage("Partie sauvegardée avec succès !");
+    }
+
+    function loadGameFromStorage() {
+        const saved = localStorage.getItem('cistude_saved_game');
+        if (!saved) {
+            alert("Aucune partie sauvegardée trouvée.");
+            return;
+        }
+        try {
+            const data = JSON.parse(saved);
+            boardState = data.boardState;
+            currentPlayer = data.currentPlayer;
+            stock = data.stock;
+            points = data.points;
+            extraHexPoints = data.extraHexPoints;
+            freeMoves = data.freeMoves || {1:0, 2:0};
+            maxTurtlesScoredTier = data.maxTurtlesScoredTier || {1:false, 2:false};
+            gamePhase = data.gamePhase;
+            frozenTiles = new Set(data.frozenTiles);
+            scoredTurtlesPoints = data.scoredTurtlesPoints || {};
+            currentRuleMode = data.currentRuleMode;
+            gameMode = data.gameMode;
+            gameHistory = data.gameHistory || [];
+            historyIndex = data.historyIndex || 0;
+            repositionMovesCount = data.repositionMovesCount || 0;
+            freeMovesUsedThisTurn = data.freeMovesUsedThisTurn || 0;
+            usingFreeMove = data.usingFreeMove || false;
+            repositionInitialBoard = data.repositionInitialBoard || null;
+            gameActive = true;
+
+            initAllConfigurations();
+
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            let ruleSubtitleText = currentRuleMode === 'standard' ? "Mode standard" : (currentRuleMode === 'base' ? "Mode de Base" : "Mode Compétition");
+            document.getElementById('rule-subtitle').textContent = ruleSubtitleText;
+            
+            if (currentRuleMode === 'competition') {
+                document.getElementById('free-moves-panel').classList.remove('hidden');
+                if (gamePhase === 'reposition') {
+                    updateFreeMoveButtonVisibility();
+                }
+            } else {
+                document.getElementById('free-moves-panel').classList.add('hidden');
+            }
+
+            if (gamePhase === 'reposition') {
+                document.getElementById('btn-end-pose').classList.add('hidden');
+                document.getElementById('btn-pass').classList.remove('hidden');
+                document.getElementById('phase-indicator').textContent = "Phase : Repositionnement";
+            } else {
+                document.getElementById('btn-end-pose').classList.remove('hidden');
+                document.getElementById('btn-pass').classList.add('hidden');
+                document.getElementById('phase-indicator').textContent = "Phase : Pose";
+            }
+
+            setupDragAndDrop();
+            updatePreview();
+            
+            detectedTurtlesCache = computeValidTurtles(boardState);
+            renderBoard();
+            updateStatus();
+            logMessage("Partie rechargée avec succès !");
+            
+            setTimeout(() => {
+                const container = document.getElementById('board-container');
+                container.scrollLeft = (container.scrollWidth - container.clientWidth) / 2;
+                container.scrollTop = (container.scrollHeight - container.clientHeight) / 2;
+            }, 50);
+        } catch(e) {
+            alert("Erreur lors du chargement de la sauvegarde.");
+        }
+    }
+
+    function transformPoint(x, y, tx, ty, rotDeg) {
+        let cx = 50, cy = 43.3013;
+        let rad = rotDeg * Math.PI / 180;
+        let nx = Math.cos(rad) * (x - cx) - Math.sin(rad) * (y - cy) + cx;
+        let ny = Math.sin(rad) * (x - cx) + Math.cos(rad) * (y - cy) + cy;
+        return { x: nx + tx, y: ny + ty };
+    }
+
+    function setupDragAndDrop() {
+        const container = document.getElementById('board-container');
+
+        container.addEventListener('mousedown', (e) => {
+            if (e.button === 1 || e.button === 0) {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                if (e.button === 0 && e.target.closest('.hex-wrapper')) {
+                    isDragging = false;
+                }
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            startX = e.clientX;
+            startY = e.clientY;
+
+            const slowFactor = 0.5;
+            container.scrollLeft -= dx * slowFactor;
+            container.scrollTop -= dy * slowFactor;
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+    }
+
+    function startGame(mode) {
+        currentRuleMode = mode;
+        gameMode = document.getElementById('game-mode').value;
+        
+        let hexInput = parseInt(document.getElementById('total-hex-count').value);
+        if (isNaN(hexInput) || hexInput < 4) hexInput = 32;
+        if (hexInput % 2 !== 0) hexInput += 1;
+        document.getElementById('total-hex-count').value = hexInput;
+
+        let halfStock = hexInput / 2;
+
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        
+        let ruleSubtitleText = mode === 'standard' ? "Mode standard" : (mode === 'base' ? "Mode de Base" : "Mode Compétition");
+        document.getElementById('rule-subtitle').textContent = ruleSubtitleText;
+
+        if (mode === 'competition') {
+            document.getElementById('free-moves-panel').classList.remove('hidden');
+        } else {
+            document.getElementById('free-moves-panel').classList.add('hidden');
+        }
+        
+        initGame(halfStock, mode);
+        setupDragAndDrop();
+        
+        setTimeout(() => {
+            const container = document.getElementById('board-container');
+            container.scrollLeft = (container.scrollWidth - container.clientWidth) / 2;
+            container.scrollTop = (container.scrollHeight - container.clientHeight) / 2;
+        }, 50);
+    }
+
+    function resetGame() {
+        if (aiInterval) clearInterval(aiInterval);
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('setup-screen').classList.remove('hidden');
+        gameActive = true;
+        currentZoom = 1.0;
+        applyZoom();
+    }
+
+    function zoomIn() {
+        currentZoom = Math.min(currentZoom + 0.15, 2.0);
+        applyZoom();
+    }
+
+    function zoomOut() {
+        currentZoom = Math.max(currentZoom - 0.15, 0.5);
+        applyZoom();
+    }
+
+    function resetZoom() {
+        currentZoom = 1.0;
+        applyZoom();
+    }
+
+    function applyZoom() {
+        const inner = document.getElementById('board-inner');
+        inner.style.transform = `scale(${currentZoom})`;
+    }
+
+    function toggleSide() {
+        currentSide = (currentSide === 'recto') ? 'verso' : 'recto';
+        let label = (currentSide === 'recto') ? 'Face : Recto (Bleu)' : 'Face : Verso (Beige)';
+        document.getElementById('btn-face-label').textContent = label;
+        updatePreview();
+        renderBoard();
+    }
+
+    function rotateTile(direction) {
+        currentRot = (currentRot + direction + 6) % 6;
+        updatePreview();
+        renderBoard();
+    }
+
+    function initGame(halfStock, mode = 'standard') {
+        boardState = {}; 
+        currentPlayer = 1;
+        stock = { 1: halfStock, 2: halfStock };
+        points = { 1: 0, 2: 0 };
+        extraHexPoints = { 1: 0, 2: 0 };
+        freeMoves = { 1: 0, 2: 0 };
+        maxTurtlesScoredTier = { 1: false, 2: false };
+        gamePhase = 'pose';
+        gameActive = true;
+        currentSide = 'recto';
+        currentRot = 0;
+        detectedTurtlesCache = [];
+        selectedTileForMove = null;
+        repositionInitialBoard = null;
+        repositionMovesCount = 0;
+        freeMovesUsedThisTurn = 0;
+        usingFreeMove = false;
+        frozenTiles = new Set();
+        scoredTurtlesPoints = {};
+        consecutivePasses = 0;
+        gameHistory = [];
+        historyIndex = -1;
+
+        document.getElementById('btn-face-label').textContent = 'Face : Recto (Bleu)';
+
+        initAllConfigurations();
+
+        if (mode === 'base') {
+            let totalHexes = halfStock * 2;
+            let coordsList = [{q: 0, r: 0}];
+            let addedSet = new Set(["0,0"]);
+            
+            const directions = [
+                {q: 1, r: 0}, {q: 1, r: -1}, {q: 0, r: -1},
+                {q: -1, r: 0}, {q: -1, r: 1}, {q: 0, r: 1}
+            ];
+
+            while (coordsList.length < totalHexes) {
+                let candidates = [];
+                coordsList.forEach(c => {
+                    directions.forEach(d => {
+                        let nq = c.q + d.q;
+                        let nr = c.r + d.r;
+                        let nKey = `${nq},${nr}`;
+                        if (!addedSet.has(nKey)) {
+                            if (!candidates.some(cand => cand.q === nq && cand.r === nr)) {
+                                candidates.push({q: nq, r: nr});
+                            }
+                        }
+                    });
+                });
+
+                if (candidates.length === 0) break;
+
+                candidates.sort((a, b) => (Math.abs(a.q) + Math.abs(a.r) + Math.abs(a.q + a.r)) - (Math.abs(b.q) + Math.abs(b.r) + Math.abs(b.q + b.r)));
+                let chosen = candidates[Math.floor(Math.random() * Math.min(3, candidates.length))];
+                
+                coordsList.push(chosen);
+                addedSet.add(`${chosen.q},${chosen.r}`);
+            }
+
+            coordsList.forEach((pos, idx) => {
+                let side = Math.random() < 0.5 ? 'recto' : 'verso';
+                let rot = Math.floor(Math.random() * 6);
+                let player = (idx % 2 === 0) ? 1 : 2;
+                boardState[`${pos.q},${pos.r}`] = { side, rot, player };
+            });
+
+            stock[1] = 0;
+            stock[2] = 0;
+            gamePhase = 'reposition';
+            document.getElementById('btn-end-pose').classList.add('hidden');
+            document.getElementById('btn-pass').classList.remove('hidden');
+            document.getElementById('phase-indicator').textContent = "Phase : Repositionnement";
+            if (currentRuleMode === 'competition') updateFreeMoveButtonVisibility();
+            
+            logMessage(`Mode de Base initialisé : ${totalHexes} hexagones distribués de manière compacte et aléatoire. Démarrage direct en phase de repositionnement.`);
+        } else {
+            document.getElementById('btn-end-pose').classList.remove('hidden');
+            document.getElementById('btn-pass').classList.add('hidden');
+            document.getElementById('phase-indicator').textContent = "Phase : Pose";
+            let modeDesc = mode === 'competition' ? "Mode Compétition" : "Mode Standard";
+            logMessage(`Partie initialisée (${modeDesc}) avec ${halfStock * 2} hexagones au total. ${getPlayerColorName(1)} commence.`);
+        }
+
+        updatePreview();
+        renderBoard();
+        updateStatus();
+        pushHistory();
+
+        if (gameMode === 'AI_AI') {
+            aiInterval = setInterval(runAITurn, 900);
+        } else if (gameMode === 'H_AI' && currentPlayer === 2) {
+            setTimeout(runAITurn, 600);
+        }
+    }
+
+    function initAllConfigurations() {
+        allValidConfigurations = [
+            { color: '#227394', name: 'Bleue', tiles: [{dq: 0, dr: 0, side: 'recto', rot: 3}, {dq: 0, dr: -1, side: 'verso', rot: 3}, {dq: -1, dr: 0, side: 'verso', rot: 2}, {dq: 1, dr: -1, side: 'verso', rot: 5}] },
+            { color: '#227394', name: 'Bleue', tiles: [{dq: 0, dr: 0, side: 'recto', rot: 3}, {dq: 0, dr: -1, side: 'verso', rot: 3}, {dq: 1, dr: -1, side: 'verso', rot: 4}, {dq: -1, dr: 0, side: 'verso', rot: 1}] },
+            { color: '#227394', name: 'Bleue', tiles: [{dq: 0, dr: 0, side: 'recto', rot: 0}, {dq: 0, dr: 1, side: 'verso', rot: 0}, {dq: -1, dr: 1, side: 'verso', rot: 1}, {dq: 1, dr: 0, side: 'verso', rot: 4}] },
+            { color: '#227394', name: 'Bleue', tiles: [{dq: 0, dr: 0, side: 'recto', rot: 0}, {dq: 0, dr: 1, side: 'verso', rot: 0}, {dq: 1, dr: 0, side: 'verso', rot: 5}, {dq: -1, dr: 1, side: 'verso', rot: 2}] },
+            { color: '#227394', name: 'Bleue', tiles: [{dq: 0, dr: 0, side: 'recto', rot: 1}, {dq: -1, dr: 1, side: 'verso', rot: 1}, {dq: -1, dr: 0, side: 'verso', rot: 2}, {dq: 0, dr: 1, side: 'verso', rot: 5}] },
+            { color: '#227394', name: 'Bleue', tiles: [{dq: 0, dr: 0, side: 'recto', rot: 1}, {dq: -1, dr: 1, side: 'verso', rot: 1}, {dq: 0, dr: 1, side: 'verso', rot: 0}, {dq: -1, dr: 0, side: 'verso', rot: 3}] },
+            { color: '#227394', name: 'Bleue', tiles: [{dq: 0, dr: 0, side: 'recto', rot: 2}, {dq: -1, dr: 0, side: 'verso', rot: 2}, {dq: 0, dr: -1, side: 'verso', rot: 3}, {dq: -1, dr: 1, side: 'verso', rot: 0}] },
+            { color: '#227394', name: 'Bleue', tiles: [{dq: 0, dr: 0, side: 'recto', rot: 2}, {dq: -1, dr: 0, side: 'verso', rot: 2}, {dq: -1, dr: 1, side: 'verso', rot: 1}, {dq: 0, dr: -1, side: 'verso', rot: 4}] },
+            { color: '#227394', name: 'Bleue', tiles: [{dq: 0, dr: 0, side: 'recto', rot: 4}, {dq: 1, dr: -1, side: 'verso', rot: 4}, {dq: 1, dr: 0, side: 'verso', rot: 5}, {dq: 0, dr: -1, side: 'verso', rot: 2}] },
+            { color: '#227394', name: 'Bleue', tiles: [{dq: 0, dr: 0, side: 'recto', rot: 4}, {dq: 1, dr: -1, side: 'verso', rot: 4}, {dq: 0, dr: -1, side: 'verso', rot: 3}, {dq: 1, dr: 0, side: 'verso', rot: 0}] },
+            { color: '#227394', name: 'Bleue', tiles: [{dq: 0, dr: 0, side: 'recto', rot: 5}, {dq: 1, dr: 0, side: 'verso', rot: 5}, {dq: 1, dr: -1, side: 'verso', rot: 4}, {dq: 0, dr: 1, side: 'verso', rot: 1}] },
+            { color: '#227394', name: 'Bleue', tiles: [{dq: 0, dr: 0, side: 'recto', rot: 5}, {dq: 1, dr: 0, side: 'verso', rot: 5}, {dq: 0, dr: 1, side: 'verso', rot: 0}, {dq: 1, dr: -1, side: 'verso', rot: 3}] },
+
+            { color: '#d4b283', name: 'Beige', tiles: [{dq: 0, dr: 0, side: 'verso', rot: 0}, {dq: 0, dr: 1, side: 'recto', rot: 0}, {dq: -1, dr: 1, side: 'recto', rot: 1}, {dq: 1, dr: 0, side: 'recto', rot: 4}] },
+            { color: '#d4b283', name: 'Beige', tiles: [{dq: 0, dr: 0, side: 'verso', rot: 3}, {dq: 0, dr: -1, side: 'recto', rot: 3}, {dq: -1, dr: 0, side: 'recto', rot: 2}, {dq: 1, dr: -1, side: 'recto', rot: 5}] },
+            { color: '#d4b283', name: 'Beige', tiles: [{dq: 0, dr: 0, side: 'verso', rot: 0}, {dq: 0, dr: 1, side: 'recto', rot: 0}, {dq: 1, dr: 0, side: 'recto', rot: 5}, {dq: -1, dr: 1, side: 'recto', rot: 2}] },
+            { color: '#d4b283', name: 'Beige', tiles: [{dq: 0, dr: 0, side: 'verso', rot: 3}, {dq: 0, dr: -1, side: 'recto', rot: 3}, {dq: 1, dr: -1, side: 'recto', rot: 4}, {dq: -1, dr: 0, side: 'recto', rot: 1}] },
+            { color: '#d4b283', name: 'Beige', tiles: [{dq: 0, dr: 0, side: 'verso', rot: 1}, {dq: -1, dr: 1, side: 'recto', rot: 1}, {dq: -1, dr: 0, side: 'recto', rot: 2}, {dq: 0, dr: 1, side: 'recto', rot: 5}] },
+            { color: '#d4b283', name: 'Beige', tiles: [{dq: 0, dr: 0, side: 'verso', rot: 1}, {dq: -1, dr: 1, side: 'recto', rot: 1}, {dq: 0, dr: 1, side: 'recto', rot: 0}, {dq: -1, dr: 0, side: 'recto', rot: 3}] },
+            { color: '#d4b283', name: 'Beige', tiles: [{dq: 0, dr: 0, side: 'verso', rot: 2}, {dq: -1, dr: 0, side: 'recto', rot: 2}, {dq: 0, dr: -1, side: 'recto', rot: 3}, {dq: -1, dr: 1, side: 'recto', rot: 0}] },
+            { color: '#d4b283', name: 'Beige', tiles: [{dq: 0, dr: 0, side: 'verso', rot: 2}, {dq: -1, dr: 0, side: 'recto', rot: 2}, {dq: -1, dr: 1, side: 'recto', rot: 1}, {dq: 0, dr: -1, side: 'recto', rot: 4}] },
+            { color: '#d4b283', name: 'Beige', tiles: [{dq: 0, dr: 0, side: 'verso', rot: 5}, {dq: 1, dr: 0, side: 'recto', rot: 5}, {dq: 1, dr: -1, side: 'recto', rot: 4}, {dq: 0, dr: 1, side: 'recto', rot: 1}] },
+            { color: '#d4b283', name: 'Beige', tiles: [{dq: 0, dr: 0, side: 'verso', rot: 5}, {dq: 1, dr: 0, side: 'recto', rot: 5}, {dq: 0, dr: 1, side: 'recto', rot: 0}, {dq: 1, dr: -1, side: 'recto', rot: 3}] },
+            { color: '#d4b283', name: 'Beige', tiles: [{dq: 0, dr: 0, side: 'verso', rot: 4}, {dq: 1, dr: -1, side: 'recto', rot: 4}, {dq: 1, dr: 0, side: 'recto', rot: 5}, {dq: 0, dr: -1, side: 'recto', rot: 2}] },
+            { color: '#d4b283', name: 'Beige', tiles: [{dq: 0, dr: 0, side: 'verso', rot: 4}, {dq: 1, dr: -1, side: 'recto', rot: 4}, {dq: 0, dr: -1, side: 'recto', rot: 3}, {dq: 1, dr: 0, side: 'recto', rot: 0}] }
+        ];
+    }
+
+    function getHexSvgContent(side, rot, opacity = 1.0, isProjection = false) {
+        let colorBottom, colorTop;
+        if (isProjection) {
+            colorBottom = (side === 'recto') ? '#555555' : '#aaaaaa';
+            colorTop = (side === 'recto') ? '#aaaaaa' : '#555555';
+        } else {
+            colorBottom = (side === 'recto') ? '#227394' : '#d4b283';
+            colorTop = (side === 'recto') ? '#d4b283' : '#227394';
+        }
+
+        const uniqueId = 'clip-' + Math.random().toString(36).substr(2, 9);
+        const hexPoints = "25,0 75,0 100,43.3013 75,86.6025 25,86.6025 0,43.3013";
+
+        return `
+            <svg viewBox="0 0 100 86.6025" class="hex-svg" style="transform: rotate(${rot * 60}deg); transform-origin: center; opacity: ${opacity};">
+                <defs>
+                    <clipPath id="${uniqueId}">
+                        <polygon points="${hexPoints}" />
+                    </clipPath>
+                </defs>
+                <g clip-path="url(#${uniqueId})">
+                    <rect x="-10" y="-10" width="120" height="110" fill="${colorTop}" />
+                    <path d="M 12.5,21.65 Q 50,43.3 87.5,21.65 L 100,43.3013 L 100,100 L 0,100 L 0,43.3013 Z" fill="${colorBottom}" />
+                </g>
+                <polygon points="${hexPoints}" fill="none" stroke="${isProjection ? '#666666' : '#2c3e50'}" stroke-width="2" />
+                <circle cx="50" cy="43.3013" r="42" fill="transparent" class="click-area" />
+            </svg>
+        `;
+    }
+
+    function getSelectionOverlaySvg() {
+        return `
+            <svg viewBox="0 0 100 86.6025" class="hex-svg" style="position: absolute; top:0; left:0; pointer-events:none; z-index: 15;">
+                <polygon points="25,0 75,0 100,43.3013 75,86.6025 25,86.6025 0,43.3013" fill="none" stroke="#f59e0b" stroke-width="5" stroke-dasharray="6,4" />
+            </svg>
+        `;
+    }
+
+    function updatePreview() {
+        document.getElementById('preview-container').innerHTML = getHexSvgContent(currentSide, currentRot, 1.0, false);
+    }
+
+    function axialToPixel(q, r) {
+        const size = 50;
+        const x = size * (3 / 2) * q;
+        const y = size * Math.sqrt(3) * (r + q / 2);
+        
+        return { 
+            x: x + 1500 - 50, 
+            y: y + 1500 - 43.3013 
+        };
+    }
+
+    function getAvailablePositions(board = boardState) {
+        if (Object.keys(board).length === 0) {
+            return [{q: 0, r: 0}];
+        }
+
+        const directions = [
+            {q: 1, r: 0}, {q: 1, r: -1}, {q: 0, r: -1},
+            {q: -1, r: 0}, {q: -1, r: 1}, {q: 0, r: 1}
+        ];
+        let available = new Set();
+        Object.keys(board).forEach(key => {
+            const [q, r] = key.split(',').map(Number);
+            directions.forEach(dir => {
+                const nq = q + dir.q;
+                const nr = r + dir.r;
+                let nKey = `${nq},${nr}`;
+                if (!board[nKey]) {
+                    available.add(nKey);
+                }
+            });
+        });
+        return Array.from(available).map(k => {
+            const [q, r] = k.split(',').map(Number);
+            return { q, r };
+        });
+    }
+
+    function isTileMovable(q, r, board = boardState) {
+        if (frozenTiles.has(`${q},${r}`)) return false;
+        
+        const directions = [
+            {q: 1, r: 0}, {q: 1, r: -1}, {q: 0, r: -1},
+            {q: -1, r: 0}, {q: -1, r: 1}, {q: 0, r: 1}
+        ];
+        let freeDirections = [];
+        for (let i = 0; i < 6; i++) {
+            let nq = q + directions[i].q;
+            let nr = r + directions[i].r;
+            if (!board[`${nq},${nr}`]) {
+                freeDirections.push(i);
+            }
+        }
+        if (freeDirections.length < 2) return false;
+        for (let i = 0; i < freeDirections.length; i++) {
+            let d1 = freeDirections[i];
+            let d2 = freeDirections[(i + 1) % freeDirections.length];
+            if (d2 === (d1 + 1) % 6) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function isArticulationPoint(q, r, board = boardState) {
+        let tempBoard = {...board};
+        delete tempBoard[`${q},${r}`];
+        let keys = Object.keys(tempBoard);
+        if (keys.length <= 1) return false;
+
+        let visited = new Set();
+        let queue = [keys[0]];
+        visited.add(keys[0]);
+        const directions = [
+            {q: 1, r: 0}, {q: 1, r: -1}, {q: 0, r: -1},
+            {q: -1, r: 0}, {q: -1, r: 1}, {q: 0, r: 1}
+        ];
+        while(queue.length > 0) {
+            let curr = queue.shift();
+            let [cq, cr] = curr.split(',').map(Number);
+            directions.forEach(d => {
+                let nKey = `${cq + d.q},${cr + d.r}`;
+                if (tempBoard[nKey] && !visited.has(nKey)) {
+                    visited.add(nKey);
+                    queue.push(nKey);
+                }
+            });
+        }
+        return visited.size !== keys.length;
+    }
+
+    function getColoredHalves(color, side, rot) {
+        let isBand = (color === 'blue' && side === 'recto') || (color === 'beige' && side === 'verso');
+        let baseHalves = isBand ?
+            ['1B', '0A', '0B', '5A', '5B', '4A', '4B', '3A'] :
+            ['3B', '2A', '2B', '1A'];                          
+
+        return baseHalves.map(h => {
+            let edge = parseInt(h[0]);
+            let half = h[1];
+            let newEdge = (edge - rot + 6) % 6;
+            return `${newEdge}${half}`;
+        });
+    }
+
+    function getColorComponents(board, color) {
+        const placedKeys = Object.keys(board);
+        if (placedKeys.length === 0) return [];
+
+        const directions = [
+            {q: 1, r: 0}, {q: 1, r: -1}, {q: 0, r: -1},
+            {q: -1, r: 0}, {q: -1, r: 1}, {q: 0, r: 1}
+        ];
+
+        function areColorConnected(q1, r1, dirIdx, col) {
+            let t1 = board[`${q1},${r1}`];
+            let q2 = q1 + directions[dirIdx].q;
+            let r2 = r1 + directions[dirIdx].r;
+            let t2 = board[`${q2},${r2}`];
+            if (!t1 || !t2) return false;
+
+            let h1 = getColoredHalves(col, t1.side, t1.rot);
+            let h2 = getColoredHalves(col, t2.side, t2.rot);
+            let oppositeDirIdx = (dirIdx + 3) % 6;
+            
+            let hasA1 = h1.includes(`${dirIdx}A`);
+            let hasB1 = h1.includes(`${dirIdx}B`);
+            let hasA2 = h2.includes(`${oppositeDirIdx}A`);
+            let hasB2 = h2.includes(`${oppositeDirIdx}B`);
+
+            if (hasA1 && hasB2) return true;
+            if (hasB1 && hasA2) return true;
+            return false;
+        }
+
+        let comps = [];
+        let visited = new Set();
+
+        placedKeys.forEach(key => {
+            if (visited.has(key)) return;
+            let [q, r] = key.split(',').map(Number);
+            let comp = [];
+            let queue = [{q, r}];
+            visited.add(key);
+
+            while (queue.length > 0) {
+                let curr = queue.shift();
+                comp.push(`${curr.q},${curr.r}`);
+                directions.forEach((dir, dIdx) => {
+                    let nq = curr.q + dir.q;
+                    let nr = curr.r + dir.r;
+                    let nKey = `${nq},${nr}`;
+                    if (!visited.has(nKey) && board[nKey] && areColorConnected(curr.q, curr.r, dIdx, color)) {
+                        visited.add(nKey);
+                        queue.push({q: nq, r: nr});
+                    }
+                });
+            }
+            comps.push(comp);
+        });
+        return comps;
+    }
+
+    function computeValidTurtles(board = boardState) {
+        const placedKeys = Object.keys(board);
+        if (placedKeys.length < 4) return [];
+
+        let blueComponents = getColorComponents(board, 'blue');
+        let beigeComponents = getColorComponents(board, 'beige');
+
+        let candidates = [];
+        placedKeys.forEach(centerKey => {
+            const [cq, cr] = centerKey.split(',').map(Number);
+            allValidConfigurations.forEach(config => {
+                let match = true;
+                let activePortions = [];
+
+                for (let pt of config.tiles) {
+                    let q = cq + pt.dq;
+                    let r = cr + pt.dr;
+                    let tile = board[`${q},${r}`];
+                    if (!tile || tile.side !== pt.side || tile.rot !== pt.rot) {
+                        match = false;
+                        break;
+                    }
+                    activePortions.push({q, r, side: pt.side, rot: pt.rot});
+                }
+                if (match) {
+                    candidates.push({ color: config.color, name: config.name, center: {q: cq, r: cr}, portions: activePortions });
+                }
+            });
+        });
+
+        let uniqueCandidates = [];
+        let seenSignatures = new Set();
+        candidates.forEach(c => {
+            let sig = c.portions.map(p => `${p.q},${p.r}`).sort().join('|') + '|' + c.color;
+            if (!seenSignatures.has(sig)) {
+                seenSignatures.add(sig);
+                uniqueCandidates.push(c);
+            }
+        });
+
+        let validTurtles = [];
+        uniqueCandidates.forEach(candidate => {
+            let matchingComp = null;
+            let allBelongToSameComp = true;
+            let sourceComponents = (candidate.name === 'Bleue') ? blueComponents : beigeComponents;
+
+            for (let p of candidate.portions) {
+                let tileKey = `${p.q},${p.r}`;
+                let comp = sourceComponents.find(c => c.includes(tileKey));
+                
+                if (!comp) { allBelongToSameComp = false; break; }
+                if (!matchingComp) { matchingComp = comp; } 
+                else if (matchingComp !== comp) { allBelongToSameComp = false; break; }
+            }
+
+            if (allBelongToSameComp && matchingComp && matchingComp.length === 4) {
+                validTurtles.push(candidate);
+            }
+        });
+
+        return validTurtles;
+    }
+
+    function renderBoard() {
+        const inner = document.getElementById('board-inner');
+        inner.innerHTML = '';
+
+        let cellsToRender = new Set(Object.keys(boardState));
+        let availablePositions = [];
+
+        if (gamePhase === 'pose') {
+            if (stock[currentPlayer] > 0) {
+                availablePositions = getAvailablePositions(boardState);
+            }
+            availablePositions.forEach(p => cellsToRender.add(`${p.q},${p.r}`));
+        } else {
+            if (selectedTileForMove) {
+                availablePositions = getAvailablePositions(boardState);
+                availablePositions.forEach(p => cellsToRender.add(`${p.q},${p.r}`));
+            }
+        }
+
+        const hexPointsGrid = "25,0 75,0 100,43.3013 75,86.6025 25,86.6025 0,43.3013";
+
+        cellsToRender.forEach(key => {
+            const [q, r] = key.split(',').map(Number);
+            const tile = boardState[key];
+            const pos = axialToPixel(q, r);
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'hex-wrapper';
+            wrapper.style.left = `${pos.x}px`;
+            wrapper.style.top = `${pos.y}px`;
+
+            if (tile) {
+                let isSelected = selectedTileForMove && selectedTileForMove.q === q && selectedTileForMove.r === r;
+                let overlay = isSelected ? getSelectionOverlaySvg() : '';
+                
+                wrapper.innerHTML = `
+                    ${getHexSvgContent(tile.side, tile.rot, 1.0, false)}
+                    ${overlay}
+                `;
+            } else {
+                let isAvailablePos = availablePositions.some(p => p.q === q && p.r === r);
+                if (isAvailablePos) {
+                    wrapper.innerHTML = `
+                        ${getHexSvgContent(currentSide, currentRot, 0.2, true)}
+                        <div class="coord-label" style="top:32px;">${q},${r}</div>
+                    `;
+                } else {
+                    wrapper.innerHTML = `
+                        <svg viewBox="0 0 100 86.6025" class="hex-svg" style="opacity: 0.2; filter: none; pointer-events: none;">
+                            <polygon points="${hexPointsGrid}" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4" style="pointer-events: none;" />
+                            <text x="50" y="47" font-size="11" text-anchor="middle" fill="#475569" font-weight="bold" style="pointer-events: none;">${q},${r}</text>
+                            <circle cx="50" cy="43.3013" r="42" fill="transparent" class="click-area" />
+                        </svg>
+                    `;
+                }
+            }
+
+            wrapper.addEventListener('click', () => {
+                handleCellClick(q, r);
+            });
+            inner.appendChild(wrapper);
+        });
+
+        detectedTurtlesCache = computeValidTurtles(boardState);
+
+        detectedTurtlesCache.forEach(turtle => {
+            let centerPos = axialToPixel(turtle.center.q, turtle.center.r);
+
+            const turtleWrapper = document.createElement('div');
+            turtleWrapper.className = 'detected-turtle';
+            turtleWrapper.style.position = 'absolute';
+            turtleWrapper.style.left = `${centerPos.x + 50}px`; 
+            turtleWrapper.style.top = `${centerPos.y + 43.3013}px`;
+            turtleWrapper.style.pointerEvents = 'none';
+            turtleWrapper.style.zIndex = '25';
+
+            let exteriorPaths = '';
+            let interiorPaths = '';
+            let dot = '';
+            let allSegments = [];
+            let allCurves = [];
+
+            let sumX = 0, sumY = 0;
+
+            turtle.portions.forEach((p, i) => {
+                let dq = p.q - turtle.center.q;
+                let dr = p.r - turtle.center.r;
+                
+                const size = 50;
+                const dx = size * (3 / 2) * dq;
+                const dy = size * Math.sqrt(3) * (dr + dq / 2);
+                
+                let isTop = (turtle.name === 'Bleue') ? (p.side === 'verso') : (p.side === 'recto');
+
+                let tx = dx - 50;
+                let ty = dy - 43.3013;
+                let rotDeg = p.rot * 60;
+
+                let tp = (x, y) => transformPoint(x, y, tx, ty, rotDeg);
+
+                let tileCenter = tp(50, 43.3013);
+                sumX += tileCenter.x;
+                sumY += tileCenter.y;
+
+                let pStart = isTop ? tp(12.5, 21.6506) : tp(87.5, 21.6506);
+                let pCtrl = tp(50, 43.3013);
+                let pEnd = isTop ? tp(87.5, 21.6506) : tp(12.5, 21.6506);
+                allCurves.push(`M ${pStart.x},${pStart.y} Q ${pCtrl.x},${pCtrl.y} ${pEnd.x},${pEnd.y}`);
+
+                const baseSegments = isTop ? [
+                    [{x: 87.5, y: 21.6506}, {x: 75, y: 0}],
+                    [{x: 75, y: 0}, {x: 25, y: 0}],
+                    [{x: 25, y: 0}, {x: 12.5, y: 21.6506}]
+                ] : [
+                    [{x: 12.5, y: 21.6506}, {x: 0, y: 43.3013}],
+                    [{x: 0, y: 43.3013}, {x: 25, y: 86.6025}],
+                    [{x: 25, y: 86.6025}, {x: 75, y: 86.6025}],
+                    [{x: 75, y: 86.6025}, {x: 100, y: 43.3013}],
+                    [{x: 100, y: 43.3013}, {x: 87.5, y: 21.6506}]
+                ];
+
+                baseSegments.forEach(seg => {
+                    let p1 = tp(seg[0].x, seg[0].y);
+                    let p2 = tp(seg[1].x, seg[1].y);
+                    
+                    let s_dx = p2.x - p1.x;
+                    let s_dy = p2.y - p1.y;
+                    let dist = Math.sqrt(s_dx*s_dx + s_dy*s_dy);
+                    
+                    let subSegments = [];
+                    if (dist > 35) { 
+                        let mx = p1.x + s_dx / 2;
+                        let my = p1.y + s_dy / 2;
+                        subSegments.push({p1: p1, p2: {x: mx, y: my}});
+                        subSegments.push({p1: {x: mx, y: my}, p2: p2});
+                    } else { 
+                        subSegments.push({p1: p1, p2: p2});
+                    }
+
+                    subSegments.forEach(sub => {
+                        let x1 = Number(sub.p1.x.toFixed(1));
+                        let y1 = Number(sub.p1.y.toFixed(1));
+                        let x2 = Number(sub.p2.x.toFixed(1));
+                        let y2 = Number(sub.p2.y.toFixed(1));
+                        
+                        let key = (x1 > x2 || (x1 === x2 && y1 > y2)) ? `${x2},${y2}-${x1},${y1}` : `${x1},${y1}-${x2},${y2}`;
+                        allSegments.push({
+                            key: key, 
+                            p1: (x1 > x2 || (x1 === x2 && y1 > y2)) ? {x: x2, y: y2} : {x: x1, y: y1}, 
+                            p2: (x1 > x2 || (x1 === x2 && y1 > y2)) ? {x: x1, y: y1} : {x: x2, y: y2}
+                        });
+                    });
+                });
+
+                if (i === 3) {
+                    let centerDot = isTop ? tp(50, 10) : tp(50, 62);
+                    dot = `<circle cx="${centerDot.x}" cy="${centerDot.y}" r="6.5" fill="#1c1621" />`;
+                }
+            });
+
+            let segmentCounts = {};
+            allSegments.forEach(s => {
+                if (!segmentCounts[s.key]) segmentCounts[s.key] = {count: 1, p1: s.p1, p2: s.p2};
+                else segmentCounts[s.key].count++;
+            });
+
+            Object.values(segmentCounts).forEach(s => {
+                if (s.count > 1) { 
+                    interiorPaths += `M ${s.p1.x},${s.p1.y} L ${s.p2.x},${s.p2.y} `;
+                } else {
+                    exteriorPaths += `M ${s.p1.x},${s.p1.y} L ${s.p2.x},${s.p2.y} `;
+                }
+            });
+
+            allCurves.forEach(c => exteriorPaths += c + " ");
+
+            let turtleKey = `${turtle.center.q},${turtle.center.r}`;
+            let ptsVal = scoredTurtlesPoints[turtleKey];
+            let ptsBadgeHtml = '';
+            if (ptsVal !== undefined) {
+                let centerX = sumX / 4;
+                let centerY = sumY / 4;
+                ptsBadgeHtml = `<text x="${centerX}" y="${centerY}" font-size="28" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#dc2626" stroke="#ffffff" stroke-width="2">${ptsVal}</text>`;
+            }
+
+            turtleWrapper.innerHTML = `
+                <svg width="400" height="400" viewBox="-200 -200 400 400" style="position: absolute; transform: translate(-50%, -50%); filter: drop-shadow(3px 5px 4px rgba(0,0,0,0.5));">
+                    <g>
+                        <path d="${exteriorPaths}" fill="none" stroke="#1c1621" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" />
+                        <path d="${interiorPaths}" fill="none" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
+                        ${dot}
+                        ${ptsBadgeHtml}
+                    </g>
+                </svg>
+            `;
+            inner.appendChild(turtleWrapper);
+        });
+
+        document.getElementById('stock-p1').textContent = stock[1];
+        document.getElementById('stock-p2').textContent = stock[2];
+        document.getElementById('pts-p1').textContent = points[1] + extraHexPoints[1];
+        document.getElementById('pts-p2').textContent = points[2] + extraHexPoints[2];
+        document.getElementById('free-moves-1').textContent = freeMoves[1];
+        document.getElementById('free-moves-2').textContent = freeMoves[2];
+    }
+
+    function triggerRepositionPhase() {
+        gamePhase = 'reposition';
+        repositionInitialBoard = null; 
+        repositionMovesCount = 0;
+        freeMovesUsedThisTurn = 0;
+        selectedTileForMove = null;
+        consecutivePasses = 0;
+        
+        let opponent = currentPlayer === 1 ? 2 : 1;
+        let totalUnplayedHexes = stock[1] + stock[2];
+        extraHexPoints[opponent] += totalUnplayedHexes;
+        
+        logMessage(`${getPlayerColorName(currentPlayer)} déclenche la fin de la pose ! Il donne tous les hexagones non joués (${totalUnplayedHexes} au total) au ${getPlayerColorName(opponent)} (+${totalUnplayedHexes} pts).`);
+        stock[1] = 0;
+        stock[2] = 0;
+
+        document.getElementById('btn-end-pose').classList.add('hidden');
+        document.getElementById('btn-pass').classList.remove('hidden');
+        if (currentRuleMode === 'competition') {
+            updateFreeMoveButtonVisibility();
+        }
+        document.getElementById('phase-indicator').textContent = "Phase : Repositionnement";
+        updateStatus();
+        renderBoard();
+        pushHistory();
+
+        if (gameActive && (gameMode === 'AI_AI' || (gameMode === 'H_AI' && currentPlayer === 2))) {
+            setTimeout(runAITurn, 700);
+        }
+    }
+
+    function updateFreeMoveButtonVisibility() {
+        if (currentRuleMode === 'competition' && gamePhase === 'reposition' && freeMoves[currentPlayer] > 0) {
+            document.getElementById('btn-use-freemove').classList.remove('hidden');
+        } else {
+            document.getElementById('btn-use-freemove').classList.add('hidden');
+        }
+    }
+
+    function useFreeMoveAction() {
+        if (freeMoves[currentPlayer] > 0) {
+            freeMoves[currentPlayer]--;
+            freeMovesUsedThisTurn++;
+            usingFreeMove = true;
+            logMessage(`${getPlayerColorName(currentPlayer)} dépense un coup gratuit de sa réserve (restant : ${freeMoves[currentPlayer]}). Ce coup est activé !`);
+            updateFreeMoveButtonVisibility();
+            renderBoard();
+            pushHistory();
+        }
+    }
+
+    function passRepositionTurn() {
+        logMessage(`${getPlayerColorName(currentPlayer)} passe son tour ou valide ses coups.`);
+        consecutivePasses++;
+        selectedTileForMove = null;
+        repositionInitialBoard = null;
+        repositionMovesCount = 0;
+        freeMovesUsedThisTurn = 0;
+        usingFreeMove = false;
+
+        if (consecutivePasses >= 2) {
+            endGame();
+        } else {
+            endRepositionTurn();
+        }
+    }
+
+    function endGame() {
+        gameActive = false;
+        let totalP1 = points[1] + extraHexPoints[1];
+        let totalP2 = points[2] + extraHexPoints[2];
+        let winnerText = "";
+        if (totalP1 > totalP2) winnerText = "Le Joueur 1 (Bleu) remporte la partie !";
+        else if (totalP2 > totalP1) winnerText = "Le Joueur 2 (Beige) remporte la partie !";
+        else winnerText = "Égalité !";
+
+        document.getElementById('status').textContent = `FIN DE PARTIE - ${winnerText}`;
+        logMessage(`Fin de la partie après deux passes consécutives. Scores finaux -> Joueur 1 (Bleu): ${totalP1} pts | Joueur 2 (Beige): ${totalP2} pts. ${winnerText}`);
+        renderBoard();
+        pushHistory();
+    }
+
+    function handleCellClick(q, r) {
+        if (!gameActive) return;
+        if (gameMode === 'H_AI' && currentPlayer === 2) return;
+
+        const key = `${q},${r}`;
+        const isExisting = boardState[key] !== undefined;
+
+        if (gamePhase === 'pose') {
+            if (isExisting) {
+                logMessage(`Case (${q}, ${r}) déjà occupée. Veuillez cliquer sur un emplacement vide valide pour poser votre hexagone.`);
+                return;
+            }
+            executePose(q, r, currentSide, currentRot);
+        } else {
+            if (isExisting) {
+                if (selectedTileForMove && selectedTileForMove.q === q && selectedTileForMove.r === r) {
+                    if (frozenTiles.has(key)) {
+                        logMessage(`Hexagone en (${q}, ${r}) figé dans une tortue scorée : modification interdite.`);
+                        return;
+                    }
+                    executeSequentialReposition(q, r, currentSide, currentRot, true);
+                } else {
+                    selectedTileForMove = {q, r};
+                    if (frozenTiles.has(key)) {
+                        logMessage(`Hexagone en (${q}, ${r}) est figé dans une tortue scorée. Il ne peut pas être modifié ni déplacé.`);
+                    } else if (!isTileMovable(q, r, boardState)) {
+                        logMessage(`Hexagone en (${q}, ${r}) sélectionné (enclavé). Vous ne pouvez pas le déplacer.`);
+                    } else {
+                        logMessage(`Hexagone en (${q}, ${r}) sélectionné. Cliquez sur une case vide pour le déplacer, ou recliquez sur lui pour le modifier sur place.`);
+                    }
+                    renderBoard();
+                }
+            } else {
+                if (selectedTileForMove) {
+                    let srcQ = selectedTileForMove.q;
+                    let srcR = selectedTileForMove.r;
+                    let srcKey = `${srcQ},${srcR}`;
+                    if (frozenTiles.has(srcKey) || !isTileMovable(srcQ, srcR, boardState)) {
+                        logMessage(`Action interdite : Cet hexagone ne peut pas être déplacé !`);
+                        selectedTileForMove = null;
+                        renderBoard();
+                        return;
+                    }
+                    executeSequentialReposition(q, r, currentSide, currentRot, false);
+                } else {
+                    logMessage("Veuillez d'abord sélectionner un hexagone sur le plateau.");
+                }
+            }
+        }
+    }
+
+    function executePose(q, r, side, rot) {
+        if (stock[currentPlayer] <= 0) {
+            logMessage(`${getPlayerColorName(currentPlayer)} n'a plus de tuiles en stock !`);
+            return;
+        }
+        let availablePos = getAvailablePositions(boardState);
+        if (availablePos.length > 0 && !availablePos.some(p => p.q === q && p.r === r)) {
+            logMessage(`Action invalide : le pavage doit rester continu.`);
+            return;
+        }
+
+        let opponent = currentPlayer === 1 ? 2 : 1;
+        let oppColorName = (opponent === 1) ? 'blue' : 'beige';
+        let compsBefore = getColorComponents(boardState, oppColorName);
+
+        stock[currentPlayer]--;
+        const key = `${q},${r}`;
+        boardState[key] = { side: side, rot: rot, player: currentPlayer };
+
+        if (currentRuleMode === 'competition') {
+            let compsAfter = getColorComponents(boardState, oppColorName);
+
+            compsAfter.forEach(ca => {
+                if (ca.length >= 6) {
+                    let matchingBefore = compsBefore.filter(cb => cb.some(tileKey => ca.includes(tileKey)));
+                    let totalPrevSize = matchingBefore.reduce((sum, cb) => sum + cb.length, 0);
+                    
+                    if (matchingBefore.length === 0 || ca.length > totalPrevSize) {
+                        freeMoves[opponent]++;
+                        logMessage(`🏆 Événement Compétition : ${getPlayerColorName(currentPlayer)} a formé/agrandi une surface de l'adversaire à >= 6 hexagones. Le ${getPlayerColorName(opponent)} gagne 1 coup gratuit de repositionnement ! (Total : ${freeMoves[opponent]})`);
+                    }
+                }
+            });
+        }
+
+        let turtlesAfter = computeValidTurtles(boardState);
+        let winningTurtle = turtlesAfter.find(t => (currentPlayer === 1 && t.name === 'Bleue') || (currentPlayer === 2 && t.name === 'Beige'));
+        
+        if (winningTurtle) {
+            gameActive = false;
+            renderBoard();
+            document.getElementById('status').textContent = `VICTOIRE ! ${getPlayerColorName(currentPlayer)} a créé une tortue ${winningTurtle.name} à la pose !`;
+            logMessage(`${getPlayerColorName(currentPlayer)} remporte immédiatement la partie grâce à la tortue ${winningTurtle.name} créée à la pose !`);
+            pushHistory();
+            return;
+        }
+
+        const sideName = (side === 'recto') ? 'Recto (Bleu)' : 'Verso (Beige)';
+        logMessage(`${getPlayerColorName(currentPlayer)} pose en (${q}, ${r}) [${sideName}]`);
+        endTurn();
+    }
+
+    function violatesFrozenTurtleConnection(tempBoard) {
+        let oldTurtles = computeValidTurtles(boardState);
+        let newTurtles = computeValidTurtles(tempBoard);
+
+        for (let oldT of oldTurtles) {
+            let oldKey = `${oldT.center.q},${oldT.center.r}`;
+            if (scoredTurtlesPoints[oldKey] !== undefined) {
+                let stillExists = newTurtles.some(newT => 
+                    newT.center.q === oldT.center.q && 
+                    newT.center.r === oldT.center.r && 
+                    newT.name === oldT.name &&
+                    newT.portions.length === 4 &&
+                    newT.portions.every(np => oldT.portions.some(op => op.q === np.q && op.r === np.r && op.side === np.side && op.rot === np.rot))
+                );
+                if (!stillExists) {
+                    return true; 
+                }
+            }
+        }
+        return false;
+    }
+
+    function executeSequentialReposition(targetQ, targetR, newSide, newRot, isInPlace) {
+        let sourceKey = `${selectedTileForMove.q},${selectedTileForMove.r}`;
+        if (frozenTiles.has(sourceKey)) {
+            logMessage(`Action interdite : cet hexagone fait partie d'une tortue figée !`);
+            selectedTileForMove = null;
+            renderBoard();
+            return;
+        }
+
+        if (repositionInitialBoard === null) {
+            repositionInitialBoard = JSON.parse(JSON.stringify(boardState));
+        }
+
+        let targetKey = `${targetQ},${targetR}`;
+
+        let tempBoard = {...boardState};
+        if (!isInPlace) {
+            delete tempBoard[sourceKey];
+            if (isArticulationPoint(selectedTileForMove.q, selectedTileForMove.r, boardState)) {
+                logMessage(`Mouvement interdit : cela diviserait le pavage en deux morceaux !`);
+                selectedTileForMove = null;
+                renderBoard();
+                return;
+            }
+        }
+
+        tempBoard[targetKey] = { side: newSide, rot: newRot, player: currentPlayer };
+
+        if (violatesFrozenTurtleConnection(tempBoard)) {
+            logMessage(`Action interdite : ce mouvement modifierait ou ferait disparaître une tortue déjà figée !`);
+            selectedTileForMove = null;
+            renderBoard();
+            return;
+        }
+
+        let turtlesBefore = computeValidTurtles(boardState);
+        let turtlesAfter = computeValidTurtles(tempBoard);
+        
+        let newlyCreated = turtlesAfter.filter(ta => {
+            let isAlreadyScored = scoredTurtlesPoints[`${ta.center.q},${ta.center.r}`] !== undefined;
+            if (isAlreadyScored) return false;
+            return !turtlesBefore.some(tb => tb.center.q === ta.center.q && tb.center.r === ta.center.r && tb.color === ta.color);
+        });
+
+        if (!isInPlace) delete boardState[sourceKey];
+        boardState[targetKey] = { side: newSide, rot: newRot, player: currentPlayer };
+
+        if (usingFreeMove) {
+            usingFreeMove = false;
+            logMessage(`Coup gratuit exécuté et consommé par ${getPlayerColorName(currentPlayer)}.`);
+        } else {
+            repositionMovesCount++;
+        }
+
+        if (newlyCreated.length > 0) {
+            let tPts = 0;
+            if (currentRuleMode === 'competition') {
+                if (!maxTurtlesScoredTier[currentPlayer]) {
+                    let effectiveStandardMoves = repositionMovesCount; 
+                    if (effectiveStandardMoves <= 1) {
+                        tPts = 2;
+                    } else {
+                        tPts = 1;
+                    }
+                    maxTurtlesScoredTier[currentPlayer] = true;
+                } else {
+                    tPts = 1;
+                }
+            } else {
+                let count = repositionMovesCount; 
+                tPts = (count === 1) ? 3 : (count === 2 ? 2 : 1);
+            }
+
+            newlyCreated.forEach((t, index) => {
+                points[currentPlayer] += tPts;
+                t.portions.forEach(p => frozenTiles.add(`${p.q},${p.r}`));
+                scoredTurtlesPoints[`${t.center.q},${t.center.r}`] = tPts;
+                logMessage(`Tortue ${t.name} créée par ${getPlayerColorName(currentPlayer)} ! (+${tPts} pt(s)) et figée définitivement.`);
+            });
+
+            consecutivePasses = 0;
+            selectedTileForMove = null;
+            repositionInitialBoard = null;
+            repositionMovesCount = 0;
+            freeMovesUsedThisTurn = 0;
+            usingFreeMove = false;
+            if (currentRuleMode === 'competition') updateFreeMoveButtonVisibility();
+            pushHistory();
+            endRepositionTurn();
+        } else {
+            let maxAllowed = currentRuleMode === 'competition' ? 2 : 3;
+            logMessage(`Coup ${repositionMovesCount}/${maxAllowed} standard effectué par ${getPlayerColorName(currentPlayer)}.`);
+            selectedTileForMove = null;
+
+            if (repositionMovesCount >= maxAllowed) {
+                boardState = JSON.parse(JSON.stringify(repositionInitialBoard));
+                logMessage(`Limite de ${maxAllowed} coups atteinte sans créer de tortue : les mouvements sont annulés et le plateau est restauré.`);
+                selectedTileForMove = null;
+                repositionInitialBoard = null;
+                repositionMovesCount = 0;
+                freeMovesUsedThisTurn = 0;
+                usingFreeMove = false;
+                if (currentRuleMode === 'competition') updateFreeMoveButtonVisibility();
+                renderBoard();
+                pushHistory();
+                endRepositionTurn();
+            } else {
+                if (currentRuleMode === 'competition') updateFreeMoveButtonVisibility();
+                renderBoard();
+            }
+        }
+    }
+
+    function endTurn() {
+        currentPlayer = currentPlayer === 1 ? 2 : 1;
+        updateStatus();
+        renderBoard();
+        pushHistory();
+
+        if (stock[1] === 0 && stock[2] === 0 && gamePhase === 'pose') {
+            triggerRepositionPhase();
+        }
+
+        if (gameActive && (gameMode === 'AI_AI' || (gameMode === 'H_AI' && currentPlayer === 2))) {
+            setTimeout(runAITurn, 700);
+        }
+    }
+
+    function endRepositionTurn() {
+        repositionMovesCount = 0;
+        freeMovesUsedThisTurn = 0;
+        repositionInitialBoard = null;
+        usingFreeMove = false;
+        currentPlayer = currentPlayer === 1 ? 2 : 1;
+        updateStatus();
+        if (currentRuleMode === 'competition') updateFreeMoveButtonVisibility();
+        renderBoard();
+        pushHistory();
+
+        if (gameActive && (gameMode === 'AI_AI' || (gameMode === 'H_AI' && currentPlayer === 2))) {
+            setTimeout(runAITurn, 700);
+        }
+    }
+
+    function evaluateBoard(board, p) {
+        let turtles = computeValidTurtles(board);
+        let scoreAI = 0;
+        let scoreOpp = 0;
+
+        let targetName = (p === 2) ? 'Beige' : 'Bleue';
+        let oppName = (p === 2) ? 'Bleue' : 'Beige';
+
+        turtles.forEach(t => {
+            if (t.name === targetName) scoreAI += 200000;
+            else if (t.name === oppName) scoreOpp += 200000;
+        });
+
+        let placedKeys = Object.keys(board);
+        placedKeys.forEach(centerKey => {
+            const [cq, cr] = centerKey.split(',').map(Number);
+            allValidConfigurations.forEach(config => {
+                let matchCount = 0;
+                config.tiles.forEach(pt => {
+                    let q = cq + pt.dq;
+                    let r = cr + pt.dr;
+                    let tile = board[`${q},${r}`];
+                    if (tile && tile.side === pt.side && tile.rot === pt.rot) {
+                        matchCount++;
+                    }
+                });
+
+                if (config.name === targetName) {
+                    if (matchCount === 3) scoreAI += 15000;
+                    else if (matchCount === 2) scoreAI += 2500;
+                } else if (config.name === oppName) {
+                    if (matchCount === 3) scoreOpp += 18000;
+                    else if (matchCount === 2) scoreOpp += 3000;
+                }
+            });
+        });
+
+        scoreAI += (p === 2 ? points[2] : points[1]) * 500;
+        scoreOpp += (p === 2 ? points[1] : points[2]) * 500;
+        return scoreAI - scoreOpp;
+    }
+
+    function minimax(board, depth, alpha, beta, maximizing, p) {
+        let turtles = computeValidTurtles(board);
+        let targetName = (p === 2) ? 'Beige' : 'Bleue';
+        let oppName = (p === 2) ? 'Bleue' : 'Beige';
+        
+        let hasWinningTurtle = turtles.some(t => t.name === targetName);
+        let hasOppWinningTurtle = turtles.some(t => t.name === oppName);
+
+        if (hasWinningTurtle) return 200000;
+        if (hasOppWinningTurtle) return -200000;
+
+        if (depth === 0) {
+            return evaluateBoard(board, p);
+        }
+        let available = getAvailablePositions(board);
+        if (available.length === 0) return evaluateBoard(board, p);
+
+        if (maximizing) {
+            let maxEval = -Infinity;
+            let sampledPositions = available.slice(0, 12);
+            for (let pos of sampledPositions) {
+                for (let side of ['recto', 'verso']) {
+                    for (let rot = 0; rot < 6; rot++) {
+                        let tempBoard = JSON.parse(JSON.stringify(board));
+                        tempBoard[`${pos.q},${pos.r}`] = { side, rot, player: p };
+                        let evalVal = minimax(tempBoard, depth - 1, alpha, beta, false, p);
+                        maxEval = Math.max(maxEval, evalVal);
+                        alpha = Math.max(alpha, evalVal);
+                        if (beta <= alpha) break;
+                    }
+                }
+            }
+            return maxEval;
+        } else {
+            let minEval = Infinity;
+            let opp = p === 1 ? 2 : 1;
+            let sampledPositions = available.slice(0, 12);
+            for (let pos of sampledPositions) {
+                for (let side of ['recto', 'verso']) {
+                    for (let rot = 0; rot < 6; rot++) {
+                        let tempBoard = JSON.parse(JSON.stringify(board));
+                        tempBoard[`${pos.q},${pos.r}`] = { side, rot, player: opp };
+                        let evalVal = minimax(tempBoard, depth - 1, alpha, beta, true, p);
+                        minEval = Math.min(minEval, evalVal);
+                        beta = Math.min(beta, evalVal);
+                        if (beta <= alpha) break;
+                    }
+                }
+            }
+            return minEval;
+        }
+    }
+
+    function searchWinningReposition(currentBoard, movesLeft, initialBoardState, targetPlayerName) {
+        let placedKeys = Object.keys(currentBoard);
+        let turtlesBefore = computeValidTurtles(currentBoard);
+
+        for (let srcKey of placedKeys) {
+            if (frozenTiles.has(srcKey)) continue;
+            let [sq, sr] = srcKey.split(',').map(Number);
+            let availablePos = getAvailablePositions(currentBoard);
+            availablePos.push({q: sq, r: sr});
+
+            for (let target of availablePos) {
+                let targetKey = `${target.q},${target.r}`;
+                let isInPlace = (targetKey === srcKey);
+
+                if (!isInPlace && !isTileMovable(sq, sr, currentBoard)) continue;
+                if (!isInPlace && isArticulationPoint(sq, sr, currentBoard)) continue;
+
+                for (let side of ['recto', 'verso']) {
+                    for (let rot = 0; rot < 6; rot++) {
+                        let tempBoard = JSON.parse(JSON.stringify(currentBoard));
+                        if (!isInPlace) {
+                            delete tempBoard[srcKey];
+                        }
+                        tempBoard[targetKey] = { side, rot, player: currentPlayer };
+
+                        if (violatesFrozenTurtleConnection(tempBoard)) continue;
+
+                        let turtlesAfter = computeValidTurtles(tempBoard);
+
+                        let newlyCreated = turtlesAfter.filter(ta => {
+                            let isAlreadyScored = scoredTurtlesPoints[`${ta.center.q},${ta.center.r}`] !== undefined;
+                            if (isAlreadyScored) return false;
+                            return !turtlesBefore.some(tb => tb.center.q === ta.center.q && tb.center.r === ta.center.r && tb.color === ta.color);
+                        });
+                        let validNew = newlyCreated.filter(t => t.name === targetPlayerName);
+
+                        if (validNew.length > 0) {
+                            return {
+                                success: true,
+                                firstMove: { sq, sr, targetQ: target.q, targetR: target.r, side, rot, inPlace: isInPlace }
+                            };
+                        }
+
+                        if (movesLeft > 1) {
+                            let subResult = searchWinningReposition(tempBoard, movesLeft - 1, initialBoardState, targetPlayerName);
+                            if (subResult.success) {
+                                return {
+                                    success: true,
+                                    firstMove: { sq, sr, targetQ: target.q, targetR: target.r, side, rot, inPlace: isInPlace }
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return { success: false };
+    }
+
+    function runAIRepositionTurn() {
+        if (!gameActive) return;
+
+        let maxAllowed = currentRuleMode === 'competition' ? 2 : 3;
+        let targetName = (currentPlayer === 2) ? 'Beige' : 'Bleue';
+        
+        if (freeMoves[currentPlayer] > 0) {
+            freeMoves[currentPlayer]--;
+            freeMovesUsedThisTurn++;
+            usingFreeMove = true;
+            logMessage(`L'IA (${getPlayerColorName(currentPlayer)}) utilise un coup gratuit de sa réserve.`);
+        }
+
+        let result = searchWinningReposition(boardState, maxAllowed, boardState, targetName);
+
+        if (result.success) {
+            let m = result.firstMove;
+            let actionType = m.inPlace ? "modification sur place" : "déplacement";
+            logMessage(`L'IA (${getPlayerColorName(currentPlayer)}) trouve une ${actionType} optimale en (${m.sq},${m.sr}) -> (${m.targetQ},${m.targetR}) !`);
+            selectedTileForMove = { q: m.sq, r: m.sr };
+            executeSequentialReposition(m.targetQ, m.targetR, m.side, m.rot, m.inPlace);
+        } else {
+            usingFreeMove = false;
+            passRepositionTurn();
+        }
+    }
+
+    function runAITurn() {
+        if (!gameActive) return;
+
+        if (gamePhase === 'pose') {
+            const availablePos = getAvailablePositions(boardState);
+            if (stock[currentPlayer] > 0 && availablePos.length > 0) {
+                let bestMove = null;
+                let bestVal = -Infinity;
+
+                for (let pos of availablePos) {
+                    for (let side of ['recto', 'verso']) {
+                        for (let rot = 0; rot < 6; rot++) {
+                            let tempBoard = JSON.parse(JSON.stringify(boardState));
+                            tempBoard[`${pos.q},${pos.r}`] = { side, rot, player: currentPlayer };
+                            
+                            let moveVal = minimax(tempBoard, 2, -Infinity, Infinity, false, currentPlayer);
+                            if (moveVal > bestVal) {
+                                bestVal = moveVal;
+                                bestMove = { q: pos.q, r: pos.r, side, rot };
+                            }
+                        }
+                    }
+                }
+
+                if (bestMove) {
+                    executePose(bestMove.q, bestMove.r, bestMove.side, bestMove.rot);
+                } else {
+                    let pos = availablePos[Math.floor(Math.random() * availablePos.length)];
+                    executePose(pos.q, pos.r, 'recto', 0);
+                }
+            } else {
+                triggerRepositionPhase();
+            }
+        } else {
+            runAIRepositionTurn();
+        }
+    }
+
+    function updateStatus() {
+        const statusEl = document.getElementById('status');
+        let phaseText = gamePhase === 'pose' ? "Phase de Pose" : "Phase de Repositionnement";
+        if (currentPlayer === 1) {
+            statusEl.textContent = `Tour du Joueur 1 (Bleu) (${phaseText})`;
+            statusEl.style.color = "var(--color-blue)";
+            statusEl.style.borderLeftColor = "var(--color-blue)";
+        } else {
+            statusEl.textContent = gameMode === 'H_AI' ? `Tour de l'IA Stratège (Beige - ${phaseText})` : `Tour du Joueur 2 (Beige) (${phaseText})`;
+            statusEl.style.color = "#b08d4b";
+            statusEl.style.borderLeftColor = "#b08d4b";
+        }
+    }
+
+    function logMessage(msg) {
+        const box = document.getElementById('log-box');
+        box.innerHTML += msg + "<br>";
+        box.scrollTop = box.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
