@@ -1,5 +1,4 @@
-<!
-/*
+<!--
  * Cistude – Programme permettant de jouer au jeu abstrait du même nom
  * Copyright (C) [2026] [Laurent JOURNAUX]
  * 
@@ -14,14 +13,13 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see https://www.gnu.org/licenses/.
- */
- >
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cistude - Jeu de Laurent JOURNAUX</title>
     <style>
         :root {
@@ -87,6 +85,7 @@
             flex-direction: column;
             box-sizing: border-box;
             min-width: 0;
+            position: relative;
         }
 
         .hidden { display: none !important; }
@@ -176,9 +175,9 @@
 
         #board-inner {
             position: relative;
-            width: 3000px;
-            height: 3000px;
-            transform-origin: 1500px 1500px;
+            width: 4500px;
+            height: 4500px;
+            transform-origin: 2250px 2250px;
         }
 
         .hex-wrapper {
@@ -338,6 +337,27 @@
         .modal-content h2 { margin-top: 0; color: #2c3e50; font-size: 1.2em; }
         .modal-content ul { padding-left: 20px; font-size: 0.9em; line-height: 1.5; color: #334155; }
         .modal-content li { margin-bottom: 8px; }
+
+        @media (max-width: 1024px) {
+            body, html {
+                overflow: auto;
+                height: auto;
+            }
+            .app-layout {
+                flex-direction: column;
+                height: auto;
+                width: 100vw;
+                padding: 4px;
+            }
+            .sidebar-left {
+                width: 100%;
+                max-height: none;
+            }
+            .main-right {
+                height: 70vh;
+                min-height: 450px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -348,7 +368,7 @@
         <div style="margin-bottom: 12px;">
             <h1>Cistude</h1>
             <div class="subtitle" style="font-size: 0.9em; font-weight: bold; color: #475569;">Un jeu de Laurent JOURNAUX</div>
-            <div style="font-size: 0.85em; color: #334155; margin-top: 4px;">Jeu de stratégie abstrait à base de pavage hexagonal et de reconnaissance de motifs de tortues. (V 0.92)</div>
+            <div style="font-size: 0.85em; color: #334155; margin-top: 4px;">Jeu de stratégie abstrait à base de pavage hexagonal et de reconnaissance de motifs de tortues.</div>
         </div>
         <hr style="border:0; border-top:1px solid #eee; margin: 12px 0;">
         
@@ -394,9 +414,9 @@
             <ul>
                 <li><strong>Hexagone en main (Panneau de gauche) :</strong> Visualise la tuile courante que vous allez jouer. Utilisez le bouton <em>Face</em> pour basculer entre Recto (Bleu) et Verso (Beige), et les boutons fléchés <em>Gauche ↺</em> / <em>Droite ↻</em> pour la pivoter.</li>
                 <li><strong>Pose des tuiles :</strong> Cliquez sur l'une des cases vides du plateau où est projetée, en grisé, la forme de l'hexagone en main pour le poser.</li>
-                <li><strong>Phase de Repositionnement :</strong> Sélectionnez une de vos tuiles déjà posées sur le plateau (entourée en jaune), puis cliquez sur une case vide pour la déplacer, ou recliquez dessus pour la modifier directement sur place. La forme posée sera celle de votre Hexagone en main.</li>
-                <li><strong>Navigation sur le plateau :</strong> Cliquez et glissez (maintenez le clic) sur le fond du plateau pour vous déplacer facilement. Utilisez les boutons <strong>+</strong> et <strong>-</strong> en bas à droite pour zoomer/dézoomer.</li>
-                <li><strong>Historique, Export et Rechargement :</strong> Utilisez les boutons <em>Précédent ◄</em> et <em>Suivant ►</em> pour naviguer dans l'historique des coups. Exportez vos parties au format texte pour constituer une banque de données ou les réimporter ultérieurement.</li>
+                <li><strong>Phase de Repositionnement :</strong> Sélectionnez une de vos tuiles déjà posées sur le plateau (entourée en jaune), puis cliquez sur une case vide pour le déplacer, ou recliquez dessus pour la modifier directement sur place. La forme posée sera celle de votre Hexagone en main.</li>
+                <li><strong>Navigation sur le plateau :</strong> Cliquez et glissez (maintenez le clic) sur le fond du plateau pour vous déplacer facilement. Utilisez les boutons <strong>+</strong> et <strong>-</strong> en bas à droite pour zoomer/dézoomer (avec une plage étendue pour une vue d'ensemble).</li>
+                <li><strong>Historique, Export et Rechargement :</strong> Utilisez les boutons <em>Précédent ◄</em> et <em>Suivant ►</em> pour naviguer dans l'historique des coups (même après la fin de la partie). Exportez vos parties au format texte pour constituer une banque de données ou les réimporter ultérieurement.</li>
             </ul>
             <div style="text-align: center; margin-top: 20px;">
                 <button class="btn" style="width: auto; padding: 8px 20px;" onclick="closeHelpModal()">Compris !</button>
@@ -495,7 +515,7 @@
     let currentRuleMode = 'standard'; 
     let gameActive = true;
     let aiInterval = null;
-    let currentZoom = 1.0;
+    let currentZoom = 0.65;
 
     let currentSide = 'recto'; 
     let currentRot = 0;        
@@ -575,6 +595,7 @@
             extraHexPoints: JSON.parse(JSON.stringify(extraHexPoints)),
             freeMoves: JSON.parse(JSON.stringify(freeMoves)),
             gamePhase: gamePhase,
+            gameActive: gameActive,
             frozenTiles: Array.from(frozenTiles),
             scoredTurtlesPoints: JSON.parse(JSON.stringify(scoredTurtlesPoints)),
             repositionMovesCount: repositionMovesCount,
@@ -617,6 +638,7 @@
         extraHexPoints = JSON.parse(JSON.stringify(snapshot.extraHexPoints));
         freeMoves = JSON.parse(JSON.stringify(snapshot.freeMoves || {1:0, 2:0}));
         gamePhase = snapshot.gamePhase;
+        gameActive = snapshot.gameActive !== undefined ? snapshot.gameActive : true;
         frozenTiles = new Set(snapshot.frozenTiles);
         scoredTurtlesPoints = JSON.parse(JSON.stringify(snapshot.scoredTurtlesPoints || {}));
         repositionMovesCount = snapshot.repositionMovesCount;
@@ -632,7 +654,7 @@
 
     function saveGameToStorage() {
         const saveData = {
-            boardState, currentPlayer, stock, points, extraHexPoints, freeMoves, gamePhase,
+            boardState, currentPlayer, stock, points, extraHexPoints, freeMoves, gamePhase, gameActive,
             frozenTiles: Array.from(frozenTiles), scoredTurtlesPoints, currentRuleMode, gameMode, gameHistory, historyIndex,
             repositionMovesCount, freeMovesUsedThisTurn, usingFreeMove, repositionInitialBoard
         };
@@ -655,6 +677,7 @@
             extraHexPoints = data.extraHexPoints;
             freeMoves = data.freeMoves || {1:0, 2:0};
             gamePhase = data.gamePhase;
+            gameActive = data.gameActive !== undefined ? data.gameActive : true;
             frozenTiles = new Set(data.frozenTiles);
             scoredTurtlesPoints = data.scoredTurtlesPoints || {};
             currentRuleMode = data.currentRuleMode;
@@ -665,7 +688,6 @@
             freeMovesUsedThisTurn = data.freeMovesUsedThisTurn || 0;
             usingFreeMove = data.usingFreeMove || false;
             repositionInitialBoard = data.repositionInitialBoard || null;
-            gameActive = true;
 
             initAllConfigurations();
 
@@ -789,7 +811,7 @@
         document.getElementById('game-screen').classList.add('hidden');
         document.getElementById('setup-screen').classList.remove('hidden');
         gameActive = true;
-        currentZoom = 1.0;
+        currentZoom = 0.65;
         applyZoom();
     }
 
@@ -799,12 +821,12 @@
     }
 
     function zoomOut() {
-        currentZoom = Math.max(currentZoom - 0.15, 0.5);
+        currentZoom = Math.max(currentZoom - 0.15, 0.2);
         applyZoom();
     }
 
     function resetZoom() {
-        currentZoom = 1.0;
+        currentZoom = 0.65;
         applyZoom();
     }
 
@@ -913,6 +935,7 @@
         }
 
         updatePreview();
+        applyZoom();
         renderBoard();
         updateStatus();
         pushHistory();
@@ -1002,8 +1025,8 @@
         const y = size * Math.sqrt(3) * (r + q / 2);
         
         return { 
-            x: x + 1500 - 50, 
-            y: y + 1500 - 43.3013 
+            x: x + 2250 - 50, 
+            y: y + 2250 - 43.3013 
         };
     }
 
@@ -1480,6 +1503,32 @@
     }
 
     function passRepositionTurn() {
+        if (repositionInitialBoard !== null) {
+            let targetPlayerTurtleName = (currentPlayer === 1) ? 'Bleue' : 'Beige';
+            let makesProgress = countTortuousProgress(repositionInitialBoard, boardState, targetPlayerTurtleName);
+            let turtlesBefore = computeValidTurtles(repositionInitialBoard);
+            let turtlesAfter = computeValidTurtles(boardState);
+            let newlyCreated = turtlesAfter.filter(ta => {
+                let isAlreadyScored = scoredTurtlesPoints[`${ta.center.q},${ta.center.r}`] !== undefined;
+                if (isAlreadyScored) return false;
+                return !turtlesBefore.some(tb => tb.center.q === ta.center.q && tb.center.r === ta.center.r && tb.color === ta.color);
+            });
+
+            if (!makesProgress && newlyCreated.length === 0) {
+                boardState = JSON.parse(JSON.stringify(repositionInitialBoard));
+                logMessage(`❌ Votre tour de repositionnement est annulé et la main passe à l'adversaire car vos mouvements n'ont pas concouru à l'apparition ou à la progression de votre tortue.`);
+                selectedTileForMove = null;
+                repositionInitialBoard = null;
+                repositionMovesCount = 0;
+                freeMovesUsedThisTurn = 0;
+                usingFreeMove = false;
+                if (currentRuleMode === 'competition') updateFreeMoveButtonVisibility();
+                renderBoard();
+                endRepositionTurn();
+                return;
+            }
+        }
+
         logMessage(`${getPlayerColorName(currentPlayer)} passe son tour ou valide ses coups.`);
         consecutivePasses++;
         selectedTileForMove = null;
@@ -1495,19 +1544,130 @@
         }
     }
 
+    function countTortuousProgress(boardBefore, boardAfter, targetName) {
+        let beforeTurtles = computeValidTurtles(boardBefore);
+        let afterTurtles = computeValidTurtles(boardAfter);
+        
+        let newTurtles = afterTurtles.filter(ta => {
+            let isAlreadyScored = scoredTurtlesPoints[`${ta.center.q},${ta.center.r}`] !== undefined;
+            if (isAlreadyScored) return false;
+            return !beforeTurtles.some(tb => tb.center.q === ta.center.q && tb.center.r === ta.center.r && tb.color === ta.color);
+        });
+        if (newTurtles.some(t => t.name === targetName)) return true;
+
+        let bestPartialBefore = 0;
+        let bestPartialAfter = 0;
+
+        allValidConfigurations.filter(cfg => cfg.name === targetName).forEach(config => {
+            let placedKeys = Object.keys(boardBefore);
+            placedKeys.forEach(centerKey => {
+                const [cq, cr] = centerKey.split(',').map(Number);
+                let match = 0;
+                config.tiles.forEach(pt => {
+                    let q = cq + pt.dq;
+                    let r = cr + pt.dr;
+                    let tile = boardBefore[`${q},${r}`];
+                    if (tile && tile.side === pt.side && tile.rot === pt.rot) match++;
+                });
+                if (match > bestPartialBefore) bestPartialBefore = match;
+            });
+        });
+
+        allValidConfigurations.filter(cfg => cfg.name === targetName).forEach(config => {
+            let placedKeys = Object.keys(boardAfter);
+            placedKeys.forEach(centerKey => {
+                const [cq, cr] = centerKey.split(',').map(Number);
+                let match = 0;
+                config.tiles.forEach(pt => {
+                    let q = cq + pt.dq;
+                    let r = cr + pt.dr;
+                    let tile = boardAfter[`${q},${r}`];
+                    if (tile && tile.side === pt.side && tile.rot === pt.rot) match++;
+                });
+                if (match > bestPartialAfter) bestPartialAfter = match;
+            });
+        });
+
+        return bestPartialAfter > bestPartialBefore;
+    }
+
     function endGame() {
         gameActive = false;
-        let totalP1 = points[1] + extraHexPoints[1];
-        let totalP2 = points[2] + extraHexPoints[2];
+        
+        let bonusP1 = currentRuleMode === 'competition' ? freeMoves[1] * 0.5 : 0;
+        let bonusP2 = currentRuleMode === 'competition' ? freeMoves[2] * 0.5 : 0;
+
+        let totalP1 = points[1] + extraHexPoints[1] + bonusP1;
+        let totalP2 = points[2] + extraHexPoints[2] + bonusP2;
+        
         let winnerText = "";
-        if (totalP1 > totalP2) winnerText = "Le Joueur 1 (Bleu) remporte la partie !";
-        else if (totalP2 > totalP1) winnerText = "Le Joueur 2 (Beige) remporte la partie !";
-        else winnerText = "Égalité !";
+        if (totalP1 > totalP2) {
+            winnerText = "Le Joueur 1 (Bleu) remporte la partie !";
+        } else if (totalP2 > totalP1) {
+            winnerText = "Le Joueur 2 (Beige) remporte la partie !";
+        } else {
+            let tCount1 = computedTurtlesCount(1);
+            let tCount2 = computedTurtlesCount(2);
+
+            if (currentRuleMode === 'base') {
+                winnerText = "Égalité !";
+            } else if (currentRuleMode === 'standard') {
+                if (tCount1 > tCount2) winnerText = "Le Joueur 1 (Bleu) remporte la partie au nombre de tortues !";
+                else if (tCount2 > tCount1) winnerText = "Le Joueur 2 (Beige) remporte la partie au nombre de tortues !";
+                else {
+                    let p1Shortened = extraHexPoints[1] > 0 ? 1 : 0;
+                    let p2Shortened = extraHexPoints[2] > 0 ? 1 : 0;
+                    if (p1Shortened > p2Shortened) winnerText = "Le Joueur 1 (Bleu) remporte la partie (phase de pose écourtée) !";
+                    else if (p2Shortened > p1Shortened) winnerText = "Le Joueur 2 (Beige) remporte la partie (phase de pose écourtée) !";
+                    else winnerText = "Match nul !";
+                }
+            } else if (currentRuleMode === 'competition') {
+                if (tCount1 > tCount2) winnerText = "Le Joueur 1 (Bleu) remporte la partie au nombre de tortues !";
+                else if (tCount2 > tCount1) winnerText = "Le Joueur 2 (Beige) remporte la partie au nombre de tortues !";
+                else {
+                    let twoCube1 = countTurtlesWithTwoCubes(1);
+                    let twoCube2 = countTurtlesWithTwoCubes(2);
+                    if (twoCube1 > twoCube2) winnerText = "Le Joueur 1 (Bleu) remporte la partie (tortues avec 2 cubes) !";
+                    else if (twoCube2 > twoCube1) winnerText = "Le Joueur 2 (Beige) remporte la partie (tortues avec 2 cubes) !";
+                    else {
+                        let p1Triggered = extraHexPoints[1] > 0 ? 1 : 0;
+                        let p2Triggered = extraHexPoints[2] > 0 ? 1 : 0;
+                        if (p1Triggered > p2Triggered) winnerText = "Le Joueur 1 (Bleu) remporte la partie (déclenchement de la fin de pose) !";
+                        else if (p2Triggered > p1Triggered) winnerText = "Le Joueur 2 (Beige) remporte la partie (déclenchement de la fin de pose) !";
+                        else winnerText = "Match nul !";
+                    }
+                }
+            }
+        }
 
         document.getElementById('status').textContent = `FIN DE PARTIE - ${winnerText}`;
-        logMessage(`Fin de la partie après deux passes consécutives. Scores finaux -> Joueur 1 (Bleu): ${totalP1} pts | Joueur 2 (Beige): ${totalP2} pts. ${winnerText}`);
+        logMessage(`Fin de la partie. Scores finaux -> Joueur 1 (Bleu): ${totalP1} pts | Joueur 2 (Beige): ${totalP2} pts. ${winnerText}`);
         renderBoard();
         pushHistory();
+    }
+
+    function computedTurtlesCount(player) {
+        let name = (player === 1) ? 'Bleue' : 'Beige';
+        let count = 0;
+        Object.keys(scoredTurtlesPoints).forEach(key => {
+            let parts = key.split(',').map(Number);
+            let match = detectedTurtlesCache.find(t => t.center.q === parts[0] && t.center.r === parts[1] && t.name === name);
+            if (match) count++;
+        });
+        return count;
+    }
+
+    function countTurtlesWithTwoCubes(player) {
+        let name = (player === 1) ? 'Bleue' : 'Beige';
+        let count = 0;
+        Object.keys(scoredTurtlesPoints).forEach(key => {
+            if (scoredTurtlesPoints[key] >= 2) {
+                let parts = key.split(',').map(Number);
+                let match = detectedTurtlesCache.find(t => t.center.q === parts[0] && t.center.r === parts[1] && t.name === name);
+                if (match) count++;
+            }
+        });
+        return count;
     }
 
     function handleCellClick(q, r) {
@@ -1599,6 +1759,9 @@
         let turtlesAfter = computeValidTurtles(boardState);
         let winningTurtle = turtlesAfter.find(t => (currentPlayer === 1 && t.name === 'Bleue') || (currentPlayer === 2 && t.name === 'Beige'));
         
+        const sideName = (side === 'recto') ? 'Recto (Bleu)' : 'Verso (Beige)';
+        logMessage(`${getPlayerColorName(currentPlayer)} pose en (${q}, ${r}) [${sideName}]`);
+
         if (winningTurtle) {
             gameActive = false;
             renderBoard();
@@ -1608,8 +1771,6 @@
             return;
         }
 
-        const sideName = (side === 'recto') ? 'Recto (Bleu)' : 'Verso (Beige)';
-        logMessage(`${getPlayerColorName(currentPlayer)} pose en (${q}, ${r}) [${sideName}]`);
         endTurn();
     }
 
@@ -1689,6 +1850,9 @@
             repositionMovesCount++;
         }
 
+        logMessage(`ℹ️ ${getPlayerColorName(currentPlayer)} : ${repositionMovesCount} / 3 coups de repositionnement joués ce tour-ci.`);
+        updateStatus();
+
         if (newlyCreated.length > 0) {
             let tPts = 0;
             if (currentRuleMode === 'competition') {
@@ -1704,10 +1868,12 @@
             }
 
             newlyCreated.forEach((t, index) => {
-                points[currentPlayer] += tPts;
+                // Attribution des points au joueur propriétaire de la couleur de la tortue (Bleue -> J1, Beige -> J2)
+                let turtleOwner = (t.name === 'Bleue') ? 1 : 2;
+                points[turtleOwner] += tPts;
                 t.portions.forEach(p => frozenTiles.add(`${p.q},${p.r}`));
                 scoredTurtlesPoints[`${t.center.q},${t.center.r}`] = tPts;
-                logMessage(`Tortue ${t.name} créée par ${getPlayerColorName(currentPlayer)} ! (+${tPts} pt(s)) et figée définitivement.`);
+                logMessage(`Tortue ${t.name} créée (dessinée par ${getPlayerColorName(currentPlayer)}) ! Attribuée au ${getPlayerColorName(turtleOwner)} (+${tPts} pt(s)) et figée définitivement.`);
             });
 
             consecutivePasses = 0;
@@ -1725,8 +1891,16 @@
             selectedTileForMove = null;
 
             if (repositionMovesCount >= maxAllowed) {
-                boardState = JSON.parse(JSON.stringify(repositionInitialBoard));
-                logMessage(`Limite de ${maxAllowed} coups atteinte sans créer de tortue : les mouvements sont annulés et le plateau est restauré.`);
+                let targetPlayerTurtleName = (currentPlayer === 1) ? 'Bleue' : 'Beige';
+                let makesProgress = countTortuousProgress(repositionInitialBoard, boardState, targetPlayerTurtleName);
+
+                if (!makesProgress) {
+                    boardState = JSON.parse(JSON.stringify(repositionInitialBoard));
+                    logMessage(`❌ Votre coup de repositionnement est annulé et la main passe à l'adversaire car vous avez joué 3 coups sans faire apparaître ni progresser votre tortue.`);
+                } else {
+                    logMessage(`⏹️ Votre coup de repositionnement est terminé car vous avez manipulé 3 hexagones sans faire apparaître de tortue. La main passe à l'adversaire.`);
+                }
+
                 selectedTileForMove = null;
                 repositionInitialBoard = null;
                 repositionMovesCount = 0;
@@ -1996,12 +2170,17 @@
     function updateStatus() {
         const statusEl = document.getElementById('status');
         let phaseText = gamePhase === 'pose' ? "Phase de Pose" : "Phase de Repositionnement";
+        let counterText = "";
+        if (gamePhase === 'reposition') {
+            counterText = ` (Coup ${repositionMovesCount}/3)`;
+        }
+
         if (currentPlayer === 1) {
-            statusEl.textContent = `Tour du Joueur 1 (Bleu) (${phaseText})`;
+            statusEl.textContent = `Tour du Joueur 1 (Bleu) (${phaseText}${counterText})`;
             statusEl.style.color = "var(--color-blue)";
             statusEl.style.borderLeftColor = "var(--color-blue)";
         } else {
-            statusEl.textContent = gameMode === 'H_AI' ? `Tour de l'IA Stratège (Beige - ${phaseText})` : `Tour du Joueur 2 (Beige) (${phaseText})`;
+            statusEl.textContent = gameMode === 'H_AI' ? `Tour de l'IA Stratège (Beige - ${phaseText}${counterText})` : `Tour du Joueur 2 (Beige) (${phaseText}${counterText})`;
             statusEl.style.color = "#b08d4b";
             statusEl.style.borderLeftColor = "#b08d4b";
         }
