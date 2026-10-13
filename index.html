@@ -1057,6 +1057,30 @@
         });
     }
 
+    function isBoardConnected(board) {
+        let keys = Object.keys(board);
+        if (keys.length <= 1) return true;
+        let visited = new Set();
+        let queue = [keys[0]];
+        visited.add(keys[0]);
+        const directions = [
+            {q: 1, r: 0}, {q: 1, r: -1}, {q: 0, r: -1},
+            {q: -1, r: 0}, {q: -1, r: 1}, {q: 0, r: 1}
+        ];
+        while(queue.length > 0) {
+            let curr = queue.shift();
+            let [cq, cr] = curr.split(',').map(Number);
+            directions.forEach(d => {
+                let nKey = `${cq + d.q},${cr + d.r}`;
+                if (board[nKey] && !visited.has(nKey)) {
+                    visited.add(nKey);
+                    queue.push(nKey);
+                }
+            });
+        }
+        return visited.size === keys.length;
+    }
+
     function isTileMovable(q, r, board = boardState) {
         if (frozenTiles.has(`${q},${r}`)) return false;
         
@@ -1259,7 +1283,20 @@
             availablePositions.forEach(p => cellsToRender.add(`${p.q},${p.r}`));
         } else {
             if (selectedTileForMove) {
-                availablePositions = getAvailablePositions(boardState);
+                let srcQ = selectedTileForMove.q;
+                let srcR = selectedTileForMove.r;
+                let srcKey = `${srcQ},${srcR}`;
+                if (isTileMovable(srcQ, srcR, boardState)) {
+                    let rawAvailable = getAvailablePositions(boardState);
+                    availablePositions = rawAvailable.filter(p => {
+                        let tempBoard = {...boardState};
+                        delete tempBoard[srcKey];
+                        tempBoard[`${p.q},${p.r}`] = { side: currentSide, rot: currentRot, player: currentPlayer };
+                        return isBoardConnected(tempBoard);
+                    });
+                } else {
+                    availablePositions = [];
+                }
                 availablePositions.forEach(p => cellsToRender.add(`${p.q},${p.r}`));
             }
         }
@@ -1692,11 +1729,17 @@
                     }
                     executeSequentialReposition(q, r, currentSide, currentRot, true);
                 } else {
+                    if (isArticulationPoint(q, r, boardState)) {
+                        logMessage(`Mouvement interdit : cela diviserait le pavage en deux morceaux !`);
+                        selectedTileForMove = null;
+                        renderBoard();
+                        return;
+                    }
                     selectedTileForMove = {q, r};
                     if (frozenTiles.has(key)) {
                         logMessage(`Hexagone en (${q}, ${r}) est figé dans une tortue scorée. Il ne peut pas être modifié ni déplacé.`);
                     } else if (!isTileMovable(q, r, boardState)) {
-                        logMessage(`Hexagone en (${q}, ${r}) sélectionné (enclavé). Vous ne pouvez pas le déplacer.`);
+                        logMessage(`Hexagone en (${q}, ${r}) peut être manipulé sur place mais il ne peut pas être déplacé.`);
                     } else {
                         logMessage(`Hexagone en (${q}, ${r}) sélectionné. Cliquez sur une case vide pour le déplacer, ou recliquez dessus pour le modifier sur place.`);
                     }
@@ -1713,6 +1756,17 @@
                         renderBoard();
                         return;
                     }
+                    
+                    let tempBoard = {...boardState};
+                    delete tempBoard[srcKey];
+                    tempBoard[key] = { side: currentSide, rot: currentRot, player: currentPlayer };
+                    if (!isBoardConnected(tempBoard)) {
+                        logMessage(`Mouvement interdit : cela diviserait le pavage en deux morceaux !`);
+                        selectedTileForMove = null;
+                        renderBoard();
+                        return;
+                    }
+
                     executeSequentialReposition(q, r, currentSide, currentRot, false);
                 } else {
                     logMessage("Veuillez d'abord sélectionner un hexagone sur le plateau.");
@@ -1814,7 +1868,7 @@
         let tempBoard = {...boardState};
         if (!isInPlace) {
             delete tempBoard[sourceKey];
-            if (isArticulationPoint(selectedTileForMove.q, selectedTileForMove.r, boardState)) {
+            if (!isBoardConnected(tempBoard)) {
                 logMessage(`Mouvement interdit : cela diviserait le pavage en deux morceaux !`);
                 selectedTileForMove = null;
                 renderBoard();
@@ -1868,7 +1922,6 @@
             }
 
             newlyCreated.forEach((t, index) => {
-                // Attribution des points au joueur propriétaire de la couleur de la tortue (Bleue -> J1, Beige -> J2)
                 let turtleOwner = (t.name === 'Bleue') ? 1 : 2;
                 points[turtleOwner] += tPts;
                 t.portions.forEach(p => frozenTiles.add(`${p.q},${p.r}`));
@@ -1954,7 +2007,7 @@
         let scoreOpp = 0;
 
         let targetName = (p === 2) ? 'Beige' : 'Bleue';
-        let oppName = (p === 2) ? 'Bleue' : 'Beige';
+        let oppName = (p === 2) ? 'Bleue' : 'Bleue';
 
         turtles.forEach(t => {
             if (t.name === targetName) scoreAI += 200000;
@@ -1993,7 +2046,7 @@
     function minimax(board, depth, alpha, beta, maximizing, p) {
         let turtles = computeValidTurtles(board);
         let targetName = (p === 2) ? 'Beige' : 'Bleue';
-        let oppName = (p === 2) ? 'Bleue' : 'Beige';
+        let oppName = (p === 2) ? 'Beige' : 'Bleue';
         
         let hasWinningTurtle = turtles.some(t => t.name === targetName);
         let hasOppWinningTurtle = turtles.some(t => t.name === oppName);
@@ -2058,7 +2111,12 @@
                 let isInPlace = (targetKey === srcKey);
 
                 if (!isInPlace && !isTileMovable(sq, sr, currentBoard)) continue;
-                if (!isInPlace && isArticulationPoint(sq, sr, currentBoard)) continue;
+                let tempBoardTest = {...currentBoard};
+                if (!isInPlace) {
+                    delete tempBoardTest[srcKey];
+                    tempBoardTest[targetKey] = { side: 'recto', rot: 0, player: currentPlayer };
+                    if (!isBoardConnected(tempBoardTest)) continue;
+                }
 
                 for (let side of ['recto', 'verso']) {
                     for (let rot = 0; rot < 6; rot++) {
