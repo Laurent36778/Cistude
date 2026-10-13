@@ -20,7 +20,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cistude - Jeu de Laurent JOURNAUX - Programme V0.935</title>
+    <title>Cistude - Jeu de Laurent JOURNAUX - Programme V0.94</title>
     <style>
         :root {
             --color-blue: #227394;
@@ -374,7 +374,7 @@
     <div id="setup-screen" style="max-width: 780px; width: 90%; background: var(--color-card); padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
         <div style="margin-bottom: 12px;">
             <h1>Cistude</h1>
-            <div class="subtitle" style="font-size: 0.9em; font-weight: bold; color: #475569;">Un jeu de Laurent JOURNAUX - Programme V0.935</div>
+            <div class="subtitle" style="font-size: 0.9em; font-weight: bold; color: #475569;">Un jeu de Laurent JOURNAUX - Programme V0.94</div>
             <div style="font-size: 0.85em; color: #334155; margin-top: 4px;">Jeu de stratégie abstrait à base de pavage hexagonal et de reconnaissance de motifs de tortues.</div>
         </div>
         <hr style="border:0; border-top:1px solid #eee; margin: 12px 0;">
@@ -421,7 +421,7 @@
             <ul>
                 <li><strong>Hexagone en main (Panneau de gauche) :</strong> Visualise la tuile courante que vous allez jouer. Utilisez le bouton <em>Face</em> pour basculer entre Recto (Bleu) et Verso (Beige), et les boutons fléchés <em>Gauche ↺</em> / <em>Droite ↻</em> pour la pivoter.</li>
                 <li><strong>Pose des tuiles :</strong> Cliquez sur l'une des cases vides du plateau où est projetée, en grisé, la forme de l'hexagone en main pour le poser.</li>
-                <li><strong>Phase de Repositionnement :</strong> Sélectionnez une de vos tuiles déjà posées sur le plateau (entourée en jaune), puis cliquez sur une case vide pour le déplacer, ou recliquez dessus pour la modifier directement sur place. La forme posée sera celle de votre Hexagone en main.</li>
+                <li><strong>Phase de Repositionnement :</strong> Sélectionnez une de vos tuiles déjà posées sur le plateau (entourée en jaune), puis cliquez sur une case vide pour la déplacer, ou recliquez dessus pour la modifier directement sur place. La forme posée sera celle de votre Hexagone en main.</li>
                 <li><strong>Navigation sur le plateau :</strong> Cliquez et glissez (maintenez le clic) sur le fond du plateau pour vous déplacer facilement. Utilisez les boutons <strong>+</strong> et <strong>-</strong> en bas à droite pour zoomer/dézoomer (avec une plage étendue pour une vue d'ensemble).</li>
                 <li><strong>Historique, Export et Rechargement :</strong> Utilisez les boutons <em>Précédent ◄</em> et <em>Suivant ►</em> pour naviguer dans l'historique des coups (même après la fin de la partie). Exportez vos parties au format texte pour constituer une banque de données ou les réimporter ultérieurement.</li>
             </ul>
@@ -811,10 +811,37 @@
     }
 
     function resetGame() {
-        if (aiInterval) clearInterval(aiInterval);
+        if (gameActive && Object.keys(boardState).length > 0) {
+            const confirmAbandon = confirm("Une partie est actuellement en cours. Voulez-vous vraiment l'abandonner et revenir au menu principal ?");
+            if (!confirmAbandon) {
+                return;
+            }
+        }
+
+        if (aiInterval) {
+            clearInterval(aiInterval);
+            aiInterval = null;
+        }
+
+        boardState = {};
+        gameHistory = [];
+        historyIndex = -1;
+        selectedTileForMove = null;
+        repositionInitialBoard = null;
+        repositionMovesCount = 0;
+        freeMovesUsedThisTurn = 0;
+        usingFreeMove = false;
+        frozenTiles.clear();
+        scoredTurtlesPoints = {};
+        detectedTurtlesCache = [];
+        gameActive = false;
+
+        const logBox = document.getElementById('log-box');
+        if (logBox) logBox.innerHTML = '';
+
         document.getElementById('game-screen').classList.add('hidden');
         document.getElementById('setup-screen').classList.remove('hidden');
-        gameActive = true;
+
         currentZoom = 0.65;
         applyZoom();
     }
@@ -860,6 +887,11 @@
     }
 
     function initGame(halfStock, mode = 'standard') {
+        if (aiInterval) {
+            clearInterval(aiInterval);
+            aiInterval = null;
+        }
+
         boardState = {}; 
         currentPlayer = 1;
         stock = { 1: halfStock, 2: halfStock };
@@ -881,6 +913,9 @@
         consecutivePasses = 0;
         gameHistory = [];
         historyIndex = -1;
+
+        const logBox = document.getElementById('log-box');
+        if (logBox) logBox.innerHTML = '';
 
         document.getElementById('btn-face-label').textContent = 'Face : Recto (Bleu)';
 
