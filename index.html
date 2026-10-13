@@ -46,12 +46,12 @@
             align-items: center;
         }
 
-        h1 { color: #2c3e50; margin: 0 0 2px 0; font-size: 1.8em; text-transform: uppercase; letter-spacing: 0.5px; }
-        .subtitle { font-size: 0.8em; color: #7f8c8d; margin-bottom: 6px; }
+        h1 { color: #2c3e50; margin: 0 0 2px 0; font-size: 1.5em; text-transform: uppercase; letter-spacing: 0.5px; }
+        .subtitle { font-size: 0.75em; color: #7f8c8d; margin-bottom: 4px; }
 
         .app-layout {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             width: 98vw;
             height: 96vh;
             max-width: none;
@@ -62,23 +62,25 @@
         }
 
         .sidebar-left {
-            width: 330px;
+            width: 25vw;
+            max-width: 350px;
+            min-width: 240px;
             flex-shrink: 0;
             background: var(--color-card);
-            padding: 12px;
+            padding: 10px;
             border-radius: 10px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             box-sizing: border-box;
-            overflow-y: auto;
+            overflow: hidden;
         }
 
         .main-right {
             flex: 1;
             background: var(--color-card);
-            padding: 12px;
+            padding: 10px;
             border-radius: 10px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
             display: flex;
@@ -94,8 +96,8 @@
             background-color: #227394;
             color: white;
             border: none;
-            padding: 8px 10px;
-            font-size: 0.8em;
+            padding: 6px 8px;
+            font-size: 0.75em;
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.2s;
@@ -128,8 +130,8 @@
         .btn-export:hover { background-color: #b45309; }
 
         select, input[type="number"] {
-            padding: 5px;
-            font-size: 0.85em;
+            padding: 4px;
+            font-size: 0.8em;
             border-radius: 5px;
             border: 1px solid #ccc;
             width: 100%;
@@ -138,10 +140,10 @@
         }
 
         #status {
-            font-size: 0.9em;
+            font-size: 0.8em;
             font-weight: bold;
             color: var(--color-blue);
-            padding: 6px;
+            padding: 4px;
             background: #f1f8e9;
             border-radius: 5px;
             border-left: 4px solid var(--color-blue);
@@ -151,9 +153,9 @@
         .scores-panel {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            padding: 6px 8px;
+            padding: 4px 6px;
             border-radius: 6px;
-            font-size: 0.8em;
+            font-size: 0.75em;
             display: flex;
             justify-content: space-around;
         }
@@ -161,11 +163,12 @@
         #board-container {
             position: relative;
             width: 100%;
+            aspect-ratio: 1 / 1;
             flex: 1;
             background: #f1f8e9;
             border: 2px solid #c8e6c9;
             border-radius: 6px;
-            overflow: auto;
+            overflow: scroll;
             cursor: grab;
             box-sizing: border-box;
         }
@@ -226,12 +229,12 @@
 
         #tile-builder {
             background: #f9fbe7;
-            padding: 10px;
+            padding: 6px;
             border-radius: 6px;
             border: 1px solid #dcedc8;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 4px;
             align-items: center;
         }
 
@@ -240,36 +243,36 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            gap: 6px;
+            gap: 4px;
         }
 
         .btn-arrow {
             background-color: #64748b;
             color: white;
             border: none;
-            width: 75px;
-            height: 90px;
+            width: 55px;
+            height: 65px;
             border-radius: 6px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 0.85em;
+            font-size: 0.75em;
             font-weight: bold;
             transition: background 0.2s;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .btn-arrow:hover { background-color: #475569; }
         .arrow-icon {
-            font-size: 2.3em;
+            font-size: 1.8em;
             line-height: 1;
             margin-bottom: 2px;
         }
 
         .preview-box {
-            width: 90px;
-            height: 90px;
+            width: 65px;
+            height: 65px;
             display: inline-flex;
             justify-content: center;
             align-items: center;
@@ -281,37 +284,37 @@
             flex-shrink: 0;
         }
         .preview-box .hex-svg {
-            width: 85px;
-            height: 73.6px;
+            width: 60px;
+            height: 52px;
         }
 
         .zoom-controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 8px;
+            margin-top: 6px;
             background: #f8fafc;
-            padding: 6px 10px;
+            padding: 4px 8px;
             border-radius: 6px;
             border: 1px solid #e2e8f0;
-            font-size: 0.85em;
+            font-size: 0.8em;
         }
 
         .history-controls {
             display: flex;
-            gap: 6px;
+            gap: 4px;
         }
 
         #log-box {
             text-align: left;
             background: #1e293b;
             color: #38bdf8;
-            padding: 6px;
+            padding: 4px;
             border-radius: 5px;
-            height: 70px;
+            height: 45px;
             overflow-y: auto;
             font-family: monospace;
-            font-size: 0.7em;
+            font-size: 0.65em;
         }
 
         #help-modal {
@@ -341,21 +344,25 @@
         @media (max-width: 1024px) {
             body, html {
                 overflow: auto;
-                height: auto;
+                height: 100%;
             }
             .app-layout {
                 flex-direction: column;
-                height: auto;
-                width: 100vw;
-                padding: 4px;
+                height: 98vh;
+                width: 98vw;
+                padding: 2px;
+                gap: 6px;
             }
             .sidebar-left {
                 width: 100%;
-                max-height: none;
+                max-width: none;
+                max-height: 25vh;
+                overflow-y: auto;
+                flex-shrink: 0;
             }
             .main-right {
-                height: 70vh;
-                min-height: 450px;
+                flex: 1;
+                min-height: 0;
             }
         }
     </style>
@@ -367,7 +374,7 @@
     <div id="setup-screen" style="max-width: 780px; width: 90%; background: var(--color-card); padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
         <div style="margin-bottom: 12px;">
             <h1>Cistude</h1>
-            <div class="subtitle" style="font-size: 0.9em; font-weight: bold; color: #475569;">Un jeu de Laurent JOURNAUX  - Programme V0.93</div>
+            <div class="subtitle" style="font-size: 0.9em; font-weight: bold; color: #475569;">Un jeu de Laurent JOURNAUX - Programme V0.93</div>
             <div style="font-size: 0.85em; color: #334155; margin-top: 4px;">Jeu de stratégie abstrait à base de pavage hexagonal et de reconnaissance de motifs de tortues.</div>
         </div>
         <hr style="border:0; border-top:1px solid #eee; margin: 12px 0;">
@@ -437,16 +444,16 @@
                 <span style="color: #b08d4b; font-weight: bold;">Beige: <span id="stock-p2">16</span> Hex (Pts: <span id="pts-p2">0</span>)</span>
             </div>
 
-            <div id="free-moves-panel" style="font-size: 0.75em; background: #faf5ff; border: 1px solid #d8b4fe; padding: 4px 8px; border-radius: 4px; text-align: center; color: #7e22ce; font-weight: bold;" class="hidden">
-                Coups gratuits en réserve -> Bleu : <span id="free-moves-1">0</span> | Beige : <span id="free-moves-2">0</span>
+            <div id="free-moves-panel" style="font-size: 0.7em; background: #faf5ff; border: 1px solid #d8b4fe; padding: 2px 6px; border-radius: 4px; text-align: center; color: #7e22ce; font-weight: bold;" class="hidden">
+                Coups gratuits -> Bleu : <span id="free-moves-1">0</span> | Beige : <span id="free-moves-2">0</span>
             </div>
 
-            <div id="phase-indicator" style="font-size: 0.8em; font-weight: bold; color: #0f766e; text-align: center;">Phase : Pose</div>
+            <div id="phase-indicator" style="font-size: 0.75em; font-weight: bold; color: #0f766e; text-align: center;">Phase : Pose</div>
             <div id="status">Tour du Joueur Bleu</div>
 
             <div id="tile-builder">
-                <div style="font-size: 1.05em; font-weight: bold; color: #2c3e50;">Hexagone en main</div>
-                <button class="btn btn-action" onclick="toggleSide()" id="btn-face-label">Face : Recto (Bleu)</button>
+                <div style="font-size: 0.95em; font-weight: bold; color: #2c3e50;">Hexagone en main</div>
+                <button class="btn btn-action" onclick="toggleSide()" id="btn-face-label" style="padding: 4px 6px;">Face : Recto (Bleu)</button>
                 
                 <div class="tile-control-row">
                     <button class="btn-arrow" onclick="rotateTile(-1)">
@@ -461,25 +468,25 @@
                 </div>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="display: flex; flex-direction: column; gap: 3px;">
                 <button id="btn-end-pose" class="btn btn-warning hidden" onclick="triggerRepositionPhase()">Déclencher Repositionnement</button>
                 <button id="btn-use-freemove" class="btn btn-freemove hidden" onclick="useFreeMoveAction()">⚡ Utiliser un coup gratuit</button>
                 <button id="btn-pass" class="btn btn-secondary hidden" onclick="passRepositionTurn()">Passer mon tour / Valider les coups</button>
             </div>
 
             <div style="display: flex; gap: 4px;">
-                <button class="btn btn-save" style="font-size: 0.75em; padding: 5px;" onclick="saveGameToStorage()">💾 Sauvegarder</button>
-                <button class="btn btn-export" style="font-size: 0.75em; padding: 5px;" onclick="exportGameFile()">📥 Exporter</button>
+                <button class="btn btn-save" style="font-size: 0.7em; padding: 4px;" onclick="saveGameToStorage()">💾 Sauvegarder</button>
+                <button class="btn btn-export" style="font-size: 0.7em; padding: 4px;" onclick="exportGameFile()">📥 Exporter</button>
             </div>
             <div class="history-controls">
-                <button class="btn btn-secondary" style="font-size: 0.75em; padding: 5px;" onclick="historyBack()">◄ Précédent</button>
-                <button class="btn btn-secondary" style="font-size: 0.75em; padding: 5px;" onclick="historyForward()">Suivant ►</button>
+                <button class="btn btn-secondary" style="font-size: 0.7em; padding: 4px;" onclick="historyBack()">◄ Précédent</button>
+                <button class="btn btn-secondary" style="font-size: 0.7em; padding: 4px;" onclick="historyForward()">Suivant ►</button>
             </div>
 
-            <button class="btn btn-secondary" style="margin-top: auto; padding: 5px;" onclick="resetGame()">Menu Principal</button>
+            <button class="btn btn-secondary" style="margin-top: auto; padding: 4px;" onclick="resetGame()">Menu Principal</button>
 
             <div>
-                <div style="font-size: 0.75em; font-weight: bold; margin-bottom: 2px; color: #475569;">Journal :</div>
+                <div style="font-size: 0.7em; font-weight: bold; margin-bottom: 1px; color: #475569;">Journal :</div>
                 <div id="log-box"></div>
             </div>
             
@@ -495,6 +502,7 @@
                 <div style="display: flex; gap: 4px; align-items: center;">
                     <button class="btn btn-zoom" onclick="zoomIn()">+</button>
                     <button class="btn btn-zoom" onclick="zoomOut()">-</button>
+                    <button class="btn btn-secondary" style="width: auto; padding: 4px 8px; margin: 0;" onclick="centerBoard()">Recentrer</button>
                     <button class="btn btn-secondary" style="width: auto; padding: 4px 8px; margin: 0;" onclick="resetZoom()">Réinitialiser</button>
                 </div>
             </div>
@@ -724,9 +732,7 @@
             logMessage("Partie rechargée avec succès !");
             
             setTimeout(() => {
-                const container = document.getElementById('board-container');
-                container.scrollLeft = (container.scrollWidth - container.clientWidth) / 2;
-                container.scrollTop = (container.scrollHeight - container.clientHeight) / 2;
+                centerBoard();
             }, 50);
         } catch(e) {
             alert("Erreur lors du chargement de la sauvegarde.");
@@ -800,9 +806,7 @@
         setupDragAndDrop();
         
         setTimeout(() => {
-            const container = document.getElementById('board-container');
-            container.scrollLeft = (container.scrollWidth - container.clientWidth) / 2;
-            container.scrollTop = (container.scrollHeight - container.clientHeight) / 2;
+            centerBoard();
         }, 50);
     }
 
@@ -828,6 +832,12 @@
     function resetZoom() {
         currentZoom = 0.65;
         applyZoom();
+    }
+
+    function centerBoard() {
+        const container = document.getElementById('board-container');
+        container.scrollLeft = (container.scrollWidth - container.clientWidth) / 2;
+        container.scrollTop = (container.scrollHeight - container.clientHeight) / 2;
     }
 
     function applyZoom() {
