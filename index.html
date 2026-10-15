@@ -22,7 +22,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cistude - Laurent JOURNAUX - V1.06</title>
+    <title>Cistude - Laurent JOURNAUX - V1.07</title>
     <style>
         :root {
             --color-blue: #227394;
@@ -399,8 +399,8 @@
             text-align: left;
         }
         .modal-content h2 { margin-top: 0; color: #2c3e50; font-size: 1.2em; }
-        .modal-content ul { padding-left: 20px; font-size: 0.9em; line-height: 1.5; color: #334155; }
-        .modal-content li { margin-bottom: 8px; }
+        .modal-content ul { padding-left: 20px; font-size: 0.9em; line-height: 1.5; color: #334155; list-style-type: none; }
+        .modal-content li { margin-bottom: 12px; }
 
         @media (max-width: 1024px) {
             body, html {
@@ -437,7 +437,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <div>
                 <h1>Cistude</h1>
-                <div class="subtitle" style="font-size: 0.9em; font-weight: bold; color: #475569;" data-i18n="subtitle">Un jeu de Laurent JOURNAUX - Programme V1.06</div>
+                <div class="subtitle" style="font-size: 0.9em; font-weight: bold; color: #475569;" data-i18n="subtitle">Un jeu de Laurent JOURNAUX - Programme V1.07</div>
             </div>
             <div>
                 <select id="lang-select" onchange="changeLanguage(this.value)" style="width: auto; font-weight: bold; padding: 4px 8px; cursor: pointer;">
@@ -499,10 +499,10 @@
             <h2 data-i18n="help_title">💡 Mode d'emploi de l'interface Cistude</h2>
             <ul>
                 <li data-i18n="help_1"><strong>Hexagone en main (Panneau de gauche) :</strong> Visualise la tuile courante que vous allez jouer. Cliquez sur le bouton <em>Face</em> ou sur le modèle de tuile pour basculer entre Recto (Bleu) et Verso (Beige), et utilisez les boutons fléchés <em>↺</em> / <em>↻</em> pour la pivoter.</li>
-                <li data-i18n="help_2"><strong>Pose des tuiles :</strong> Cliquez sur l'une des cases vides du plateau où est projetée, en grisé, la forme de l'hexagone en main pour le poser. Le dernier hexagone posé est encerclé d'un pointillé rose clair avec une pastille centrale colorée.</li>
-                <li data-i18n="help_3"><strong>Phase de Repositionnement :</strong> Chaque déplacement ou mouvement doit toucher une tuile de la tortue créée ce tour-ci (ou former directement cette tortue). Sinon, le tour est annulé.</li>
-                <li data-i18n="help_4"><strong>Navigation sur le plateau :</strong> Glissez un doigt sur le plateau pour vous déplacer. Utilisez le pincement à deux doigts ou les boutons <strong>+</strong> et <strong>-</strong> pour zoomer/dézoomer.</li>
                 <li data-i18n="help_5"><strong>Mode Fantôme Hexagone (Touche F) & Tortue (Touche T) :</strong> Survolez une case et appuyez sur <strong>F</strong> pour voir l'hexagone sélectionné, ou sur <strong>T</strong> pour projeter une tortue fantôme rose claire. Appuyez sur <strong>R</strong> pour la pivoter (pas de 60°) et sur <strong>C</strong> pour changer de face.</li>
+                <li data-i18n="help_2"><strong>Pose des tuiles :</strong> Cliquez sur l'une des cases vides du plateau où est projetée, en grisé, la forme de l'hexagone en main pour le poser.</li>
+                <li data-i18n="help_3"><strong>Phase de Repositionnement :</strong> Sélectionnez une de vos tuiles déjà posées sur le plateau (entourée en jaune), puis cliquez sur une case vide pour la déplacer, ou recliquez dessus pour la modifier directement sur place. La forme posée sera celle de votre Hexagone en main.<br><br>La touche Échap permet d’annuler la sélection d’une tuile.</li>
+                <li data-i18n="help_4"><strong>Navigation sur le plateau :</strong> Glissez un doigt ou utilisez les ascenseurs pour vous déplacer sur le plateau. Utilisez le pincement à deux doigts ou les boutons <strong>+</strong> et <strong>-</strong> pour zoomer/dézoomer.</li>
                 <li data-i18n="help_6"><strong>Historique, Export et Rechargement :</strong> Utilisez les boutons <em>Précédent ◄</em> et <em>Suivant ►</em> pour naviguer dans l'historique des coups. Exportez vos parties au format texte pour les sauvegarder ou les réimporter ultérieurement.</li>
             </ul>
             <div style="text-align: center; margin-top: 20px;">
@@ -594,7 +594,7 @@
 <script>
     const translations = {
         fr: {
-            subtitle: "Un jeu de Laurent JOURNAUX - Programme V1.06",
+            subtitle: "Un jeu de Laurent JOURNAUX - Programme V1.07",
             desc: "Jeu de stratégie abstrait à base de pavage hexagonal et de reconnaissance de motifs de tortues.",
             mode_label: "Mode adversaires :",
             mode_hh: "Humain (Bleu) vs Humain (Beige)",
@@ -612,12 +612,12 @@
             btn_resume: "📂 Reprendre",
             btn_presentation: "📖 Présentation du jeu",
             help_title: "💡 Mode d'emploi de l'interface Cistude",
-            help_1: "<strong>Hexagone en main (Panneau de gauche) :</strong> Visualise la tuile courante que vous allez jouer.",
-            help_2: "<strong>Pose des tuiles :</strong> Cliquez sur l'une des cases vides du plateau.",
-            help_3: "<strong>Phase de Repositionnement :</strong> Chaque déplacement ou mouvement doit toucher une tuile de la tortue créée ce tour-ci (ou former directement cette tortue).Sinon, le tour est annulé.",
-            help_4: "<strong>Navigation sur le plateau :</strong> Glissez un doigt sur le plateau pour vous déplacer.",
-            help_5: "<strong>Mode Fantôme Hexagone (Touche F) & Tortue (Touche T) :</strong> Survolez une case et appuyez sur F ou T.",
-            help_6: "<strong>Historique, Export et Rechargement :</strong> Utilisez les boutons Précédent et Suivant.",
+            help_1: "<strong>Hexagone en main (Panneau de gauche) :</strong> Visualise la tuile courante que vous allez jouer. Cliquez sur le bouton <em>Face</em> ou sur le modèle de tuile pour basculer entre Recto (Bleu) et Verso (Beige), et utilisez les boutons fléchés <em>↺</em> / <em>↻</em> pour la pivoter.",
+            help_2: "<strong>Pose des tuiles :</strong> Cliquez sur l'une des cases vides du plateau où est projetée, en grisé, la forme de l'hexagone en main pour le poser.",
+            help_3: "<strong>Phase de Repositionnement :</strong> Sélectionnez une de vos tuiles déjà posées sur le plateau (entourée en jaune), puis cliquez sur une case vide pour la déplacer, ou recliquez dessus pour la modifier directement sur place. La forme posée sera celle de votre Hexagone en main.<br><br>La touche Échap permet d’annuler la sélection d’une tuile.",
+            help_4: "<strong>Navigation sur le plateau :</strong> Glissez un doigt ou utilisez les ascenseurs pour vous déplacer sur le plateau. Utilisez le pincement à deux doigts ou les boutons <strong>+</strong> et <strong>-</strong> pour zoomer/dézoomer.",
+            help_5: "<strong>Mode Fantôme Hexagone (Touche F) & Tortue (Touche T) :</strong> Survolez une case et appuyez sur <strong>F</strong> pour voir l'hexagone sélectionné, ou sur <strong>T</strong> pour projeter une tortue fantôme rose claire. Appuyez sur <strong>R</strong> pour la pivoter (pas de 60°) et sur <strong>C</strong> pour changer de face.",
+            help_6: "<strong>Historique, Export et Rechargement :</strong> Utilisez les boutons <em>Précédent ◄</em> et <em>Suivant ►</em> pour naviguer dans l'historique des coups. Exportez vos parties au format texte pour les sauvegarder ou les réimporter ultérieurement.",
             help_close: "Compris !",
             hand_tile: "Hexagone en main",
             face_recto: "Face : Recto (Bleu)",
@@ -650,7 +650,7 @@
             toast_no_progress: "❌ Tour annulé : 3 coups joués sans créer de tortue !"
         },
         en: {
-            subtitle: "A game by Laurent JOURNAUX - Program V1.06",
+            subtitle: "A game by Laurent JOURNAUX - Program V1.07",
             desc: "Abstract strategy game based on hexagonal tiling and turtle pattern recognition.",
             mode_label: "Opponent Mode:",
             mode_hh: "Human (Blue) vs Human (Beige)",
@@ -668,10 +668,10 @@
             btn_resume: "📂 Resume",
             btn_presentation: "📖 Game Overview",
             help_title: "💡 Cistude Interface Guide",
-            help_1: "<strong>Hexagon in hand:</strong> Shows the current tile to be played.",
-            help_2: "<strong>Tile Placement:</strong> Click on an empty board slot.",
-            help_3: "<strong>Repositioning Phase:</strong> Every move must touch a tile of the created turtle or form it.",
-            help_4: "<strong>Board Navigation:</strong> Drag to pan around the board.",
+            help_1: "<strong>Hexagon in hand:</strong> Shows current tile to be played.",
+            help_2: "<strong>Tile Placement:</strong> Click on an empty slot.",
+            help_3: "<strong>Repositioning Phase:</strong> Select placed tile, click to move.",
+            help_4: "<strong>Board Navigation:</strong> Drag or pinch.",
             help_5: "<strong>Ghost Preview:</strong> Press F or T.",
             help_6: "<strong>History & Save/Export:</strong> Use Previous and Next buttons.",
             help_close: "Got it!",
@@ -706,7 +706,7 @@
             toast_no_progress: "❌ Turn canceled: 3 moves played without creating a turtle!"
         },
         de: {
-            subtitle: "Ein Spiel von Laurent JOURNAUX - Programm V1.06",
+            subtitle: "Ein Spiel von Laurent JOURNAUX - Programm V1.07",
             desc: "Abstraktes Strategiespiel basierend auf hexagonaler Parkettierung und Schildkrötenmuster-Erkennung.",
             mode_label: "Gegnermodus:",
             mode_hh: "Mensch (Blau) vs Mensch (Beige)",
@@ -726,7 +726,7 @@
             help_title: "💡 Cistude Anleitung",
             help_1: "<strong>Sechseck auf der Hand:</strong> Zeigt das aktuelle Plättchen.",
             help_2: "<strong>Platzierung:</strong> Klicke auf ein leeres Feld.",
-            help_3: "<strong>Umpositionierungsphase:</strong> Jeder Zug muss ein Plättchen der erzeugten Schildkröte berühren.",
+            help_3: "<strong>Umpositionierung:</strong> Wählen Sie ein Plättchen aus.",
             help_4: "<strong>Spielfeld-Navigation:</strong> Ziehen zum Bewegen.",
             help_5: "<strong>Phantom-Vorschau:</strong> Drücke F oder T.",
             help_6: "<strong>Historie & Export:</strong> Nutze Vor und Zurück.",
@@ -762,7 +762,7 @@
             toast_no_progress: "❌ Zug abgebrochen: 3 Züge ohne Schildkröte!"
         },
         es: {
-            subtitle: "Un juego de Laurent JOURNAUX - Programa V1.06",
+            subtitle: "Un juego de Laurent JOURNAUX - Programa V1.07",
             desc: "Juego de estrategia abstracta basado en teselados hexagonales y reconocimiento de patrones de tortuga.",
             mode_label: "Modo de oponentes:",
             mode_hh: "Humano (Azul) vs Humano (Beige)",
@@ -782,7 +782,7 @@
             help_title: "💡 Guía de la interfaz de Cistude",
             help_1: "<strong>Hexágono en mano:</strong> Muestra la ficha actual.",
             help_2: "<strong>Colocación de fichas:</strong> Haz clic en una casilla vacía.",
-            help_3: "<strong>Reposicionamiento:</strong> Cada movimiento debe tocar una ficha de la tortuga creada.",
+            help_3: "<strong>Reposicionamiento:</strong> Selecciona una ficha y muévela.",
             help_4: "<strong>Navegación:</strong> Arrastra para mover el tablero.",
             help_5: "<strong>Vista Fantasma:</strong> Pulsa F o T.",
             help_6: "<strong>Historial y Exportación:</strong> Usa Anterior y Siguiente.",
@@ -882,7 +882,6 @@
     let selectedTileForMove = null;
     let consecutivePasses = 0;
     
-    // --- CORRECTION V1.06 : Traçabilité explicite des mouvements (départ -> arrivée) ---
     let modifiedMovesThisTurn = [];
 
     let gameHistory = [];
@@ -1844,11 +1843,11 @@
             
             let isTop = (turtle.name === 'Bleue') ? (p.side === 'verso') : (p.side === 'recto');
 
-            let tx = dx;
-            let ty = dy;
+            let tx = dx - 50;
+            let ty = dy - 43.3013;
             let rotDeg = p.rot * 60;
 
-            let tp = (x, y) => transformPoint(x, y, tx - 50, ty - 43.3013, rotDeg);
+            let tp = (x, y) => transformPoint(x, y, tx, ty, rotDeg);
 
             let tileCenter = tp(50, 43.3013);
             sumX += tileCenter.x;
@@ -2160,11 +2159,9 @@
         }
     }
 
-    // --- RÈGLE V1.06 : VALIDATION EXACTE DE LA SÉQUENCE DES MOUVEMENTS (DEPART -> ARRIVÉE) ---
     function checkMovesLegality(newTurtlesCreated) {
         if (newTurtlesCreated.length === 0) return true;
 
-        // 1. Récupération de l'ensemble de toutes les positions occupées par les nouvelles tortues
         let turtleTiles = new Set();
         newTurtlesCreated.forEach(t => {
             t.portions.forEach(p => turtleTiles.add(`${p.q},${p.r}`));
@@ -2175,7 +2172,6 @@
             {q: -1, r: 0}, {q: -1, r: 1}, {q: 0, r: 1}
         ];
 
-        // Fonction testant si une position (q, r) touche la structure de l'une des tortues créées
         function touchesTurtle(q, r) {
             let key = `${q},${r}`;
             if (turtleTiles.has(key)) return true;
@@ -2187,17 +2183,11 @@
             return false;
         }
 
-        // 2. Traçabilité de chaque action du tour
         for (let move of modifiedMovesThisTurn) {
             let [fromQ, fromR] = move.from.split(',').map(Number);
-            
-            // A. Est-ce que la tuile fait partie de la tortue à l'arrivée ?
             let arrivesInTurtle = turtleTiles.has(move.to);
-
-            // B. Est-ce que sa position de départ touchait l'une des tortues créées ?
             let departedFromTurtleArea = touchesTurtle(fromQ, fromR);
 
-            // Si elle ne composait pas la tortue ET qu'elle n'était pas voisine de la tortue au départ -> Illégal
             if (!arrivesInTurtle && !departedFromTurtleArea) {
                 return false;
             }
@@ -2538,7 +2528,6 @@
         if (!isInPlace) delete boardState[sourceKey];
         boardState[targetKey] = { side: newSide, rot: newRot, player: currentPlayer };
 
-        // Enregistrement explicite du mouvement : { from, to }
         modifiedMovesThisTurn.push({ from: sourceKey, to: targetKey });
 
         if (usingFreeMove) {
